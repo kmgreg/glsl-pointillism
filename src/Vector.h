@@ -14,7 +14,7 @@
 #ifndef LINEAR_H_
 #define LINEAR_H_
 
-// we cheat, and just use stdio here
+// we cheat, and just use stdio here 
 #include <cstdio>
 #include <cmath>
 

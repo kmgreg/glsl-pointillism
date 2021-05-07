@@ -52,6 +52,6 @@ void setTransforms( GLuint program, GLfloat scale[],
 /// @param program   The ID of an OpenGL (GLSL) shader program to which
 ///    parameter values are to be sent
 ///
-void setCamera( GLuint program );
+void setCamera( GLuint program , int xmov, int ymov, int zmov);
 
 #endif

@@ -19,7 +19,7 @@
 
 // this is here in case you are using SOIL;
 // if you're not, it can be deleted.
-#include <SOIL/SOIL.h>
+//#include <SOIL/SOIL.h>
 
 using namespace std;
 

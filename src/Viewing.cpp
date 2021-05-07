@@ -40,7 +40,7 @@ using namespace std;
 
 /// standard camera information
 static GLfloat eye[] =    { 0.2f, 3.0f, 6.5f };
-static GLfloat lookat[] = { 0.0f, 1.0f, 0.0f };
+static GLfloat lookat[] = { 0.0f, 0.0f, 1.0f };
 static GLfloat up[] =     { 0.0f, 1.0f, 0.0f };
 
 /// clipping boundaries: left, right, top, bottom, near, far
@@ -159,8 +159,28 @@ void setTransforms( GLuint program, GLfloat scale[],
 /// @param program - The ID of an OpenGL (GLSL) shader program to which
 ///    parameter values are to be sent
 ///
-void setCamera( GLuint program )
+void setCamera( GLuint program, int xmov, int ymov, int zmov )
 {
+    /*
+    // reset eye
+    float rRads = D2R((float)rotation);
+
+    // get offsets for x and z
+    float xoffset = sinf(rRads);
+    float zoffset = cosf(rRads);
+
+    GLfloat cloneeye[] = { 0.2f * xoffset, 3.0f, 6.5f * zoffset};
+    GLfloat clonelookat[] = {xoffset, 0.0 ,zoffset};
+    */
+    eye[0] += xmov * 0.1;
+    eye[1] += ymov * 0.1;
+    eye[2] += zmov * 0.1;
+   
+    lookat[0] += xmov * 0.1;
+    lookat[1] += ymov * 0.1;
+    lookat[2] += zmov * 0.1;
+
+
     //
     // Begin by calculating the axes of the camera coordinate system
     //

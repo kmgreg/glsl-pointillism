@@ -16,8 +16,13 @@
 #include <cstdlib>
 #include <cmath>
 
-#include <unistd.h>
+#ifdef __linux__ 
+    #include <unistd.h>
+#elif _WIN32
+    #include <io.h>
+#else
 
+#endif
 #include "Vector.h"
 
 using namespace std;

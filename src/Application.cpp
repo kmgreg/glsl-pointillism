@@ -48,6 +48,12 @@ using namespace std;
 /// PRIVATE GLOBALS
 ///
 
+static int rotation = 0;
+static int xmove = 0;
+static int ymove = 0;
+static int zmove = 0;
+
+
 ///
 /// Object information
 ///
@@ -77,9 +83,9 @@ static BufferSet buffers[N_OBJECTS];
 static GLuint program;
 
 // names of our object files
-static const char *cubeFile = "cube.obj";
-static const char *cylinderFile = "cylinder.obj";
-static const char *sphereFile = "sphere.obj";
+static const char *cubeFile = "src/cube.obj";
+static const char *cylinderFile = "src/cylinder.obj";
+static const char *sphereFile = "src/sphere.obj";
 
 // object loader data
 objl::Loader cubeData;
@@ -87,8 +93,8 @@ objl::Loader cylinderData;
 objl::Loader sphereData;
 
 // names of our GLSL shader files
-static const char *vshader = "texture.vert";
-static const char *fshader = "texture.frag";
+static const char *vshader = "src/texture.vert";
+static const char *fshader = "src/texture.frag";
 
 ///
 // PUBLIC GLOBALS
@@ -211,8 +217,15 @@ static void createShapes( void )
 static void keyboard( GLFWwindow *window, int key, int scan,
                       int action, int mods )
 {
+    /*
     if( action != GLFW_PRESS ) {
         return;
+    }
+    */
+    int inc = 1;
+
+    if (action == GLFW_RELEASE) {
+        inc = 0;
     }
 
     switch( key ) {
@@ -225,6 +238,34 @@ static void keyboard( GLFWwindow *window, int key, int scan,
     case GLFW_KEY_ESCAPE:  // terminate the program
     case GLFW_KEY_Q:
         glfwSetWindowShouldClose( window, 1 );
+        break;
+    case GLFW_KEY_RIGHT:
+        // rotation = (rotation + 1) % 360;
+        xmove = inc;
+        break;
+    case GLFW_KEY_LEFT:
+        // rotation = (rotation - 1) % 360;
+        xmove = -inc;
+        break;
+    case GLFW_KEY_W:
+        rotation = (rotation - 1) % 360;
+        zmove = -inc;
+
+        break;
+    case GLFW_KEY_S:
+        rotation = (rotation - 1) % 360;
+        zmove = inc;
+
+        break;
+    case GLFW_KEY_UP:
+        rotation = (rotation - 1) % 360;
+        ymove = inc;
+
+        break;
+    case GLFW_KEY_DOWN:
+        rotation = (rotation - 1) % 360;
+        ymove = -inc;
+
         break;
     }
 }
@@ -247,7 +288,7 @@ static void display( void )
     setLighting( program );
 
     // set up the view transformation
-    setCamera( program );
+    setCamera( program, xmove, ymove, zmove );
 
     checkErrors( "display common" );
 
