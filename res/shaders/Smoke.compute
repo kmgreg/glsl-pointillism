@@ -1,0 +1,81 @@
+//@author Lauren Cole
+
+#version 430
+//declare unifroms here
+uniform sampler2D u_texture;
+//declare vertex structures
+struct attributeData
+{
+	vec4 position;
+	vec4 velocity;
+	vec4 age; //age and padding
+	vec4 color;
+};
+
+layout(std140, binding = 0) buffer vInfo
+{
+	attributeData data[];
+};
+
+layout(local_size_x = 128, local_size_y = 1, local_size_z = 1) in;
+
+void main()
+{
+	uint offset = gl_GlobalInvocationID.x;
+	
+	
+	float buoyancy = 0.01 * data[offset].age[1];
+	float gravity = -0.0001f;
+	//read in the current position in the thread
+	
+	float lifeRemaining = data[offset].age.x;
+
+	//update positions
+	data[offset].position.x += data[offset].velocity.x;
+	data[offset].position.y += data[offset].velocity.y;
+	data[offset].position.z += data[offset].velocity.z;
+	data[offset].position.w = 1.0f;
+
+	//update velocity
+	/*if (lifeRemaining < 0.15)
+	{
+		data[offset].velocity.x = data[offset].velocity.x * 0.5f;
+		data[offset].velocity.y = data[offset].velocity.y * 0.5f;
+		data[offset].velocity.z = data[offset].velocity.z * 0.5f;
+		data[offset].velocity.w = 1.0f;
+	}
+	else
+	{
+		data[offset].velocity.x = data[offset].velocity.x;
+		data[offset].velocity.y = data[offset].velocity.y;
+		data[offset].velocity.z = data[offset].velocity.z;
+		data[offset].velocity.w = 1.0f;
+	}*/
+	//build rotation matrix to rotate the smoke in a vortex like motion
+	//float theta = radians(u_angleSeed);
+	float seed = data[offset].age[1];
+	float theta = radians(seed * 5.0f + 5.0f) * lifeRemaining * 0.9f;
+	
+	mat4 rotation = mat4(cos(theta), 0.0f, sin(theta), 0.0f,
+					0.0f, 1.0f, 0.0f, 0.0f,
+					-sin(theta), 0.0f, cos(theta), 0.0f,
+					0.0f, 0.0f, 0.0f, 1.0f);
+	
+	data[offset].velocity = rotation * data[offset].velocity;
+	data[offset].velocity.y += (gravity + buoyancy);
+
+	//update age
+	data[offset].age.x = data[offset].age.x - 0.01;
+	data[offset].age.y = 0.0f;
+	data[offset].age.z = 0.0f;
+	data[offset].age.w = 0.0f;
+
+	vec4 texColor = texture(u_texture, vec2(lifeRemaining, data[offset].age[1]));
+	vec4 finalColor = mix(texColor, data[offset].color, 0.5f);
+	//update color
+	float alpha = mix(0.0f, 0.4f, lifeRemaining);
+	
+	//data[offset].color = vec4(texColor[0], texColor[1], texColor[2], alpha);
+	data[offset].color = vec4(finalColor[0], finalColor[1], finalColor[2], alpha);
+	//data[offset].color = vec4(0.0f, 0.5f, 0.9f, lifeRemaining);
+}

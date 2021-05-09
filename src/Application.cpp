@@ -1,446 +1,122 @@
-///
-///  Application.cpp
-///
-///  Assignment-specific code.
-///
-///  Created by Warren R. Carithers on 2019/09/09.
-///  Based on earlier versions created by Joe Geigel and Warren R. Carithers
-///  Copyright 2019 Rochester Institute of Technology. All rights reserved.
-///
-///  This file should not be modified by students.
-///
-
-#include <cstdlib>
-#include <iostream>
-
-#if defined(_WIN32) || defined(_WIN64)
-#include <windows.h>
-#endif
-
-//
-// GLEW and GLFW header files also pull in the OpenGL definitions
-//
-
-#ifndef __APPLE__
 #include <GL/glew.h>
-#endif
-
 #include <GLFW/glfw3.h>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <array>
+#include "Renderer.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
+#include "Shader.h"
+#include "VertexBufferLayout.h"
+#include "VertexArray.h"
+#include "ParticleSystem.h"
+#include "Random.h"
 
-#include "Types.h"
-#include "ShaderSetup.h"
-#include "Buffers.h"
-#include "Canvas.h"
-#include "Utils.h"
-
-#include "Application.h"
-#include "Viewing.h"
-#include "Textures.h"
-#include "Lighting.h"
-#include "Shapes.h"
-
-// .obj file loader
-#include "OBJ_Loader.h"
-
-using namespace std;
-
-///
-/// PRIVATE GLOBALS
-///
-
-static int rotation = 0;
-static int xmove = 0;
-static int ymove = 0;
-static int zmove = 0;
-
-
-///
-/// Object information
-///
-
-// cube transformations
-static GLfloat cube_scale[] = {  0.5f, 1.0f, 0.5f };
-static GLfloat cube_xlate[] = { -1.5f, 0.0f, -1.5f };
-static GLfloat cube_rotate[] = { 0.0f, 25.0f, 0.0f };
-
-// cylinder transformations
-static GLfloat cyl_scale[] = { 0.5f, 1.0f, 0.5f };
-static GLfloat cyl_xlate[] = { 0.0f, 0.0f, -3.5f };
-static GLfloat cyl_rotate[] = { 0.0f, 0.0f, 0.0f };
-
-// sphere transformations
-static GLfloat sph_scale[] = { 0.5f, 0.5f, 0.5f };
-static GLfloat sph_xlate[] = { 1.5f, 0.0f, -0.5f };
-static GLfloat sph_rotate[] = { 0.0f, 0.0f, 0.0f };
-
-// our Canvas
-static Canvas *canvas;
-
-// We need three vertex buffers for our shapes
-static BufferSet buffers[N_OBJECTS];
-
-// shader program handle
-static GLuint program;
-
-// names of our object files
-static const char *cubeFile = "src/cube.obj";
-static const char *cylinderFile = "src/cylinder.obj";
-static const char *sphereFile = "src/sphere.obj";
-
-// object loader data
-objl::Loader cubeData;
-objl::Loader cylinderData;
-objl::Loader sphereData;
-
-// names of our GLSL shader files
-static const char *vshader = "src/texture.vert";
-static const char *fshader = "src/texture.frag";
-
-///
-// PUBLIC GLOBALS
-///
-
-///
-// Drawing-related variables
-///
-
-// dimensions of the drawing window
-int w_width  = 600;
-int w_height = 600;
-
-// drawing window title
-const char *w_title = (char *) "Lab 2";
-
-// GL context we're using (we assume 3.2, for GLSL 1.50)
-int gl_maj = 3;
-int gl_min = 2;
-
-// our GLFWwindow
-GLFWwindow *w_window;
-
-///
-// PRIVATE FUNCTIONS
-///
-
-///
-/// makeShape() - load one object's data into the canvas
-///
-/// @param object    the object data to use
-/// @param C         the Canvas object to be used
-/// @param which     which model we want within that data
-///
-void makeShape( objl::Loader object, Canvas &C, int which ) {
-    objl::Mesh mesh = object.LoadedMeshes[which];
-
-    // we need to get the vertices in triangle order, so
-    // we will iterate on the indices
-
-    for( int i = 0; i < mesh.Indices.size(); i += 3 ) {
-        int i1 = mesh.Indices[i];
-        int i2 = mesh.Indices[i+1];
-        int i3 = mesh.Indices[i+2];
-
-        Vertex v1 = { mesh.Vertices[i1].Position.X,
-                      mesh.Vertices[i1].Position.Y,
-                      mesh.Vertices[i1].Position.Z };
-
-        Vertex v2 = { mesh.Vertices[i2].Position.X,
-                      mesh.Vertices[i2].Position.Y,
-                      mesh.Vertices[i2].Position.Z };
-
-        Vertex v3 = { mesh.Vertices[i3].Position.X,
-                      mesh.Vertices[i3].Position.Y,
-                      mesh.Vertices[i3].Position.Z };
-
-#if defined(USE_CALCULATED_NORMALS)
-        // let addTriangle() calculate normals
-        C.addTriangle( v1, v2, v3 );
-#else
-        // use normals from the .obj file
-        Normal n1 = { mesh.Vertices[i1].Normal.X,
-                      mesh.Vertices[i1].Normal.Y,
-                      mesh.Vertices[i1].Normal.Z };
-
-        Normal n2 = { mesh.Vertices[i2].Normal.X,
-                      mesh.Vertices[i2].Normal.Y,
-                      mesh.Vertices[i2].Normal.Z };
-
-        Normal n3 = { mesh.Vertices[i3].Normal.X,
-                      mesh.Vertices[i3].Normal.Y,
-                      mesh.Vertices[i3].Normal.Z };
-
-        C.addTriangleWithNorms( v1, n1, v2, n2, v3, n3 );
-#endif
-
-        TexCoord t1 = { mesh.Vertices[i1].TextureCoordinate.X,
-                        mesh.Vertices[i1].TextureCoordinate.Y };
-
-        TexCoord t2 = { mesh.Vertices[i2].TextureCoordinate.X,
-                        mesh.Vertices[i2].TextureCoordinate.Y };
-
-        TexCoord t3 = { mesh.Vertices[i3].TextureCoordinate.X,
-                        mesh.Vertices[i3].TextureCoordinate.Y };
-
-        C.addTextureCoords( t1, t2, t3 );
-    }
-}
-
-///
-/// createShapes() - create vertex and element buffers for our shapes
-///
-static void createShapes( void )
+/**
+get mouse position to update particle system origin
+*/
+glm::vec3 getMouseCoordinates(double x, double y, int windowx, int windowy, glm::mat4 proj, glm::mat4 view)
 {
-    // clear any previous shape
-    canvas->clear();
-
-    // make the cube and its buffers
-    makeShape( cubeData, *canvas, 0 );
-    buffers[OBJ_CUBE].createBuffers( *canvas );
-
-    // ditto for the others
-    canvas->clear();
-    makeShape( cylinderData, *canvas, 0 );
-    buffers[OBJ_CYLINDER].createBuffers( *canvas );
-
-    canvas->clear();
-    makeShape( sphereData, *canvas, 0 );
-    buffers[OBJ_SPHERE].createBuffers( *canvas );
+    glm::mat4 matrix = view * proj;
+    matrix = glm::inverse(matrix);
+    float worldx = -1.0f + ((x / (float)windowx) * 2.0f);
+    float worldy = 1.0f - ((y / (float)windowy) * 2.0f);
+    glm::vec4 ret = glm::vec4(worldx, worldy, 0.0f, 1.0f);
+    ret = ret * matrix;
+    glm::vec3 no = glm::vec3(ret[0], ret[1], ret[2]);
+    return no;
 }
 
-///
-/// Event callback routines for this assignment
-///
 
-///
-/// Handle keyboard input
-///
-static void keyboard( GLFWwindow *window, int key, int scan,
-                      int action, int mods )
+int main(void)
 {
-    /*
-    if( action != GLFW_PRESS ) {
-        return;
+    GLFWwindow* window;
+
+    /* Initialize the library */
+    if (!glfwInit())
+        return -1;
+
+    /* Create a windowed mode window and its OpenGL context */
+    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    if (!window)
+    {
+        glfwTerminate();
+        return -1;
     }
-    */
-    int inc = 1;
 
-    if (action == GLFW_RELEASE) {
-        inc = 0;
+    /* Make the window's context current */
+    glfwMakeContextCurrent(window);
+    
+    if (glewInit() != GLEW_OK) std::cout << "Error!" << std::endl;
+
+    glm::mat4 identity = glm::mat4(1.0f);
+    glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, 1.0f, -1.0f);
+    glm::mat4 model = glm::mat4(1.0f);   
+
+    /*initilize render loop variables*/
+    double xpos = 0.0f;
+    double ypos = 0.0f;
+    int size = 60000;
+    ParticleSystem ps = ParticleSystem(size, glm::vec3(0.0f, 0.0f, 0.0f), "res/shaders/Basic.shader", "res/shaders/Rainbow.compute");
+    glm::mat4 view = glm::mat4(1.0);
+    unsigned int ps_shaderID = ps.getShaderID();
+    glUseProgram(ps_shaderID);
+    GLuint projLoc = glGetUniformLocation(ps_shaderID, "u_proj");
+    GLuint viewLoc = glGetUniformLocation(ps_shaderID, "u_view");
+    GLuint modLoc = glGetUniformLocation(ps_shaderID, "u_model");
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, &proj[0][0]);
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
+    Renderer renderer;
+    Random random;
+
+
+    /*any additional render settings here*/
+   
+    renderer.enableBlend();
+    glEnable(GL_PROGRAM_POINT_SIZE);
+   // glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+   // glEnable(GL_POINT_SPRITE);
+    glEnable(GL_POINT_SMOOTH);
+   
+
+    /* Loop until the user closes the window */
+    while (!glfwWindowShouldClose(window))
+    {
+        /*RENDERING CODE */
+        renderer.clear();
+
+       /* ///* update particle system   */
+        int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+        if (state == GLFW_PRESS)
+        {
+            glfwGetCursorPos(window, &xpos, &ypos);
+            glm::vec3 worldcoordspos = getMouseCoordinates(xpos, ypos, 640, 480, proj, view);
+            std::cout << "Xnew: " << worldcoordspos[0] << " Y: " << worldcoordspos[1] << std::endl;
+            ps.updateOrigin(worldcoordspos[0], worldcoordspos[1]);
+            ps.emit(25);
+        } 
+        ps.onUpdate();
+        
+        /*END RENDER CODE*/
+
+        //EXPERIMENTAL
+      /*  shader.setUniform4fv("u_color", color);*/
+        /*shader.setUniformMat4f("u_model", model);
+        shader.setUniformMat4f("u_proj", proj);
+        shader.setUniformMat4f("u_view", view);
+        shader.setUniform3fv("u_lerpColors", 6, lerpColors);
+        renderer.draw(va, ib, shader);*/
+
+        /* Swap front and back buffers */
+        glfwSwapBuffers(window);
+        
+        /* Poll for and process events */
+        glfwPollEvents();
     }
-
-    switch( key ) {
-    case GLFW_KEY_H:  // help message
-        cout << "Key(s)       Action" << endl;
-        cout << "==========   =======================" << endl;
-        cout << " ESC, q, Q   Terminate the program" << endl;
-        break;
-
-    case GLFW_KEY_ESCAPE:  // terminate the program
-    case GLFW_KEY_Q:
-        glfwSetWindowShouldClose( window, 1 );
-        break;
-    case GLFW_KEY_RIGHT:
-        // rotation = (rotation + 1) % 360;
-        xmove = inc;
-        break;
-    case GLFW_KEY_LEFT:
-        // rotation = (rotation - 1) % 360;
-        xmove = -inc;
-        break;
-    case GLFW_KEY_W:
-        rotation = (rotation - 1) % 360;
-        zmove = -inc;
-
-        break;
-    case GLFW_KEY_S:
-        rotation = (rotation - 1) % 360;
-        zmove = inc;
-
-        break;
-    case GLFW_KEY_UP:
-        rotation = (rotation - 1) % 360;
-        ymove = inc;
-
-        break;
-    case GLFW_KEY_DOWN:
-        rotation = (rotation - 1) % 360;
-        ymove = -inc;
-
-        break;
-    }
+    
+    glfwTerminate();
+    return 0;
 }
 
-///
-// Display the current image
-///
-static void display( void )
-{
-    // clear the frame buffer
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-    // select the shader program
-    glUseProgram( program );
-
-    // set up projection parameters
-    setFrustum( program );
-
-    // set up lighting for the scene
-    setLighting( program );
-
-    // set up the view transformation
-    setCamera( program, xmove, ymove, zmove );
-
-    checkErrors( "display common" );
-
-    // draw the individual objects
-    for( int obj = 0; obj < N_OBJECTS; ++obj ) {
-
-        // set up material property data
-        setMaterials( program, obj );
-
-        // set up texture/shading information
-        setTextures( program, obj );
-
-        checkErrors( "display object 1" );
-
-        // send all the transformation data
-        switch( obj ) {
-        case OBJ_CUBE:
-            setTransforms( program, cube_scale, cube_rotate, cube_xlate );
-            break;
-        case OBJ_SPHERE:
-            setTransforms( program, sph_scale, sph_rotate, sph_xlate );
-            break;
-        case OBJ_CYLINDER:
-            setTransforms( program, cyl_scale, cyl_rotate, cyl_xlate );
-            break;
-        }
-
-        checkErrors( "display object 2" );
-
-        // draw it
-        buffers[obj].selectBuffers( program,
-            "vPosition", NULL, "vNormal", "vTexCoord" );
-
-        checkErrors( "display object 3" );
-
-        glDrawElements( GL_TRIANGLES, buffers[obj].numElements,
-            GL_UNSIGNED_INT, (void *)0 );
-
-        checkErrors( "display object 4" );
-    }
-}
-
-///
-/// OpenGL initialization
-///
-static bool init( void )
-{
-    // Create our Canvas "object"
-    canvas = new Canvas( w_width, w_height );
-
-    if( canvas == NULL ) {
-        cerr << "error - cannot create Canvas" << endl;
-        return( false );
-    }
-
-    // Check the OpenGL version - we need at least OpenGL 3.2
-    // in order to get GLSL 1.50
-    if( gl_maj < 3 || (gl_maj == 3 && gl_min < 2) ) {
-        cerr << "Cannot use GLSL 1.50 - shaders won't compile!" << endl;
-        cerr << "Bailing out!" << endl;
-        return( false );
-    }
-
-    // Load objects
-    if( !cubeData.LoadFile( cubeFile ) ) {
-        cerr << "Error loading " << cubeFile << endl;
-        return( false );
-    }
-    if( !cylinderData.LoadFile( cylinderFile ) ) {
-        cerr << "Error loading " << cylinderFile << endl;
-        return( false );
-    }
-    if( !sphereData.LoadFile( sphereFile ) ) {
-        cerr << "Error loading " << sphereFile << endl;
-        return( false );
-    }
-
-    // Load shaders and use the resulting shader program
-    ShaderError error;
-    program = shaderSetup( vshader, fshader, &error );
-    if( !program ) {
-        cerr << "Error setting up shaders - "
-             << errorString(error) << endl;
-        return( false );
-    }
-
-#if 0
-    // this code can be enabled if you need to dump out the
-    // shader variables for the three shaders
-
-    cout << "Shader actives" << endl;
-    cout << "----------" << endl << "Flat shader " << flat << endl;
-    dumpActives( flat );
-    cout << "----------" << endl << "Gouraud shader " << gouraud << endl;
-    dumpActives( gouraud );
-    cout << "----------" << endl << "Phong shader " << phong << endl;
-    dumpActives( phong );
-#endif
-
-    glUseProgram( program );
-
-    checkErrors( "init 1" );
-
-    // Create all our objects
-    createShapes();
-
-    // OpenGL state initialization
-    glEnable( GL_DEPTH_TEST );
-    glEnable( GL_CULL_FACE );
-    glCullFace( GL_BACK );
-    glClearColor( 0.0, 0.0, 0.0, 0.0 );
-    glDepthFunc( GL_LEQUAL );
-    glClearDepth( 1.0f );
-
-    checkErrors( "init 2" );
-
-    // initialize all texture-related things
-    initTextures();
-
-    checkErrors( "init 3" );
-
-    // register our callbacks
-    glfwSetKeyCallback( w_window, keyboard );
-
-    checkErrors( "init 4" );
-
-    return( true );
-}
-
-///
-// PUBLIC FUNCTIONS
-///
-
-///
-// Assignment-specific processing
-///
-void application( int argc, char *argv[] )
-{
-    (void) argc;
-    (void) argv;
-
-    if( !init() ) {
-        return;
-    }
-
-    checkErrors( "pre-draw" );
-
-    // loop until it's time to quit
-    while( !glfwWindowShouldClose(w_window) ) {
-        display();
-        glfwSwapBuffers( w_window );
-        checkErrors( "draw" );
-        glfwWaitEvents();
-    }
-}
