@@ -22,8 +22,6 @@ ParticleSystem::ParticleSystem(int size, glm::vec3 origin, std::string vffilepat
 	generateMasterIndexArray();
 	vb.init(m_particles.data(), m_size * sizeof(Particle), DYNAMIC_DRAW);
 	va.addBuffer(vb, layout);
-	std::cout << "size: " << m_size << std::endl;
-	std::cout << "initialized particle system variables. exiting constructor..." << std::endl;
 }
 
 /*
@@ -118,14 +116,14 @@ returns random velocity values to be used when resetting a particle
 glm::vec3 ParticleSystem::randomizeParticleVelocity()
 {
 	//SMOKE RANDOMIZATION
-	//float x = random.getFloatInRange(-0.01, 0.01);
-	//float y = random.getFloatInRange(0.01, 0.02);
-	//float z = random.getFloatInRange(-0.01, 0.01);
+	float x = random.getFloatInRange(-0.01, 0.01);
+	float y = random.getFloatInRange(0.01, 0.02);
+	float z = random.getFloatInRange(-0.01, 0.01);
 
 	//RAINBOW RANDOMIZATION
-	float x = random.getFloatInRange(-0.001, 0.001);
-	float y = random.getFloatInRange(-0.001, 0.001);
-	float z = random.getFloatInRange(-0.001, 0.001);
+	//float x = random.getFloatInRange(-0.001, 0.001);
+	//float y = random.getFloatInRange(-0.001, 0.001);
+	//float z = random.getFloatInRange(-0.001, 0.001);
 	return glm::vec3(x, y, z);
 }
 

@@ -11,7 +11,8 @@
 #include "Shader.h"
 #include "VertexBufferLayout.h"
 #include "VertexArray.h"
-#include "ParticleSystem.h"
+//#include "ParticleSystem.h"
+#include "PainterlyParticleSystem.h"
 #include "Random.h"
 
 /**
@@ -59,18 +60,19 @@ int main(void)
     double xpos = 0.0f;
     double ypos = 0.0f;
     int size = 60000;
-    ParticleSystem ps = ParticleSystem(size, glm::vec3(0.0f, 0.0f, 0.0f), "res/shaders/Basic.shader", "res/shaders/Rainbow.compute");
+   // ParticleSystem ps = ParticleSystem(size, glm::vec3(0.0f, 0.0f, 0.0f), "res/shaders/Basic.shader", "res/shaders/Rainbow.compute");
+    PainterlyParticleSystem pps = PainterlyParticleSystem(100, "res/shaders/Blue.shader", "res/Shaders/Smoke.compute", "res/objects/spherefl.obj");
     glm::mat4 view = glm::mat4(1.0);
-    unsigned int ps_shaderID = ps.getShaderID();
-    glUseProgram(ps_shaderID);
-    GLuint projLoc = glGetUniformLocation(ps_shaderID, "u_proj");
-    GLuint viewLoc = glGetUniformLocation(ps_shaderID, "u_view");
-    GLuint modLoc = glGetUniformLocation(ps_shaderID, "u_model");
+    unsigned int pps_shaderID = pps.getShaderID();
+    glUseProgram(pps_shaderID);
+    GLuint projLoc = glGetUniformLocation(pps_shaderID, "u_proj");
+    GLuint viewLoc = glGetUniformLocation(pps_shaderID, "u_view");
+    GLuint modLoc = glGetUniformLocation(pps_shaderID, "u_model");
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, &proj[0][0]);
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
     Renderer renderer;
-    Random random;
 
+    
 
     /*any additional render settings here*/
    
@@ -86,10 +88,11 @@ int main(void)
     {
         /*RENDERING CODE */
         renderer.clear();
+        pps.onUpdate();
 
        /* ///* update particle system   */
-        int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-        if (state == GLFW_PRESS)
+        /*int LMBState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+        if (LMBState == GLFW_PRESS)
         {
             glfwGetCursorPos(window, &xpos, &ypos);
             glm::vec3 worldcoordspos = getMouseCoordinates(xpos, ypos, 640, 480, proj, view);
@@ -97,7 +100,7 @@ int main(void)
             ps.updateOrigin(worldcoordspos[0], worldcoordspos[1]);
             ps.emit(25);
         } 
-        ps.onUpdate();
+        ps.onUpdate();*/
         
         /*END RENDER CODE*/
 

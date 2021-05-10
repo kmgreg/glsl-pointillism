@@ -12,8 +12,8 @@
 #include <vector>
 #include <algorithm>
 #include <array>
-//#include <vendor\glm\ext\quaternion_common.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
 /**
 class to represent a particle system contains a struct to represent a particle
 @author = Lauren Cole
@@ -88,8 +88,6 @@ private:
 
 public:
 	ParticleSystem(int size, glm::vec3 origin, std::string vfshaderfilepath, std::string computefilepath);
-	
-	//ParticleSystem::ParticleSystem(int size, std::vector<unsigned int> inds, glm::vec3 origin, std::string vffilepath);
 	unsigned int getShaderID();
 	void initializeArray();
 	void updateOrigin(float xpos, float ypos); // function to update the origin of the particle system
