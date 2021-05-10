@@ -12,7 +12,7 @@ PainterlyParticleSystem::PainterlyParticleSystem(int size, std::string vfshaderf
 {
 	//first we are going to make the vertex object array
 	layout.push<float>(4); //push position
-	layout.push<float>(4); //push rotation
+
 
 	//initialize buffers
 	initializeArray(objectfilepath);
@@ -46,12 +46,13 @@ void PainterlyParticleSystem::initializeArray(std::string objectfilepath) {
 	for (int i = 0; i < indices.size(); i += 3) {
 		PaintParticle center;
 		center.position.w = 1.0f;
-		center.position.x = (vertices[i].Position.X + vertices[i+1].Position.X + vertices[i+2].Position.X) /3.0f;
+		center.position.x = (vertices[i].Position.X + vertices[i+1].Position.X + vertices[i+2].Position.X) / 3.0f;
 		center.position.y = (vertices[i].Position.Y + vertices[i + 1].Position.Y + vertices[i + 2].Position.Y) / 3.0f;
 		center.position.z = (vertices[i].Position.Z + vertices[i + 1].Position.Z + vertices[i + 2].Position.Z) / 3.0f;
 		m_particles.push_back(center);
 	}
 	m_size = m_particles.size();
+	std::cout << m_size << std::endl;
 }
 
 unsigned int PainterlyParticleSystem::getShaderID()
