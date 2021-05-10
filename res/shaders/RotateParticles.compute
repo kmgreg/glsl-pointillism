@@ -1,0 +1,29 @@
+//@author Lauren Cole
+
+#version 430
+//declare unifroms here
+uniform vec4 u_viewPosition; //we are expecting the camera position in world space
+
+//declare vertex structures
+struct attributeData
+{
+	vec4 position; //position in world space, basically the translation matrix condensed into a vector
+	vec4 rotation; //we need to calculate the rotation, based on the translation
+};
+
+layout(std140, binding = 0) buffer vInfo
+{
+	attributeData data[];
+};
+
+layout(local_size_x = 128, local_size_y = 1, local_size_z = 1) in;
+
+void main()
+{
+	//read in the current position in the thread
+	uint offset = gl_GlobalInvocationID.x;
+	 
+	
+
+	}
+}
