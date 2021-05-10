@@ -18,8 +18,8 @@ void main()
 #shader fragment
 #version 430 core
 layout(location = 0) out vec4 color;
-in vec4 _color;
+in vec4 fColor;
 void main()
 {
-	color = _color;
+	color = fColor;
 };

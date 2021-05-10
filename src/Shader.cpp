@@ -191,10 +191,19 @@ unsigned int Shader::createShader(const std::string& vertexShader, const std::st
     unsigned int vs = compileShader(GL_VERTEX_SHADER, vertexShader);
     unsigned int fs = compileShader(GL_FRAGMENT_SHADER, fragmentShader);
     unsigned int gs = compileShader(GL_GEOMETRY_SHADER, geometryShader);
+    std::cout << "gs: " << std::endl;
+    std::cout << gs << std::endl;
     glAttachShader(program, vs);
     glAttachShader(program, fs);
     glAttachShader(program, gs);
     glLinkProgram(program);
+
+    int flag;
+    glGetProgramiv(program, GL_LINK_STATUS, &flag);
+    std::cout << "flag: " << std::endl;
+    std::cout << flag << std::endl;
+
+
     glValidateProgram(program);
     glDeleteShader(vs);
     glDeleteShader(fs);
