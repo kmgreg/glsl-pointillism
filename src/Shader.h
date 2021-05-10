@@ -12,6 +12,12 @@ struct ShaderProgramSource
 {
 	std::string VertexSource;
 	std::string FragmentSource;
+	std::string GeometrySource;
+};
+
+enum class ShaderType
+{
+	NONE = -1, VERTEX = 0, FRAGMENT = 1, GEOMETRY = 2
 };
 
 class Shader
@@ -20,8 +26,10 @@ private:
 	std::string m_filepath;
 	unsigned int m_rendererID;
 	std::unordered_map<std::string, int> m_uniformLocationCache;
+	std::string m_geomFilepath; //optional filepath for a geometry shader
 public:
-	Shader(const std::string& filename);
+	Shader(const std::string& filename); //instantiate the shader with a file containing vertex and fragment
+	Shader(const std::string& filename, const std::string& geomFilename); //instantiate with a geometry shader
 	~Shader();
 	Shader();
 	void bind() const;
@@ -41,7 +49,10 @@ public:
 private:
 	int getUniformLocation(const std::string& name);
 	unsigned int createShader(const std::string& vertexShader, const std::string& fragmentShader);
+	unsigned int createShader(const std::string& vertexShader, const std::string& fragmentShader, const std::string& geometryShader);
 	unsigned int compileShader(unsigned int type, const std::string& source);
 	ShaderProgramSource ParseShader(const std::string& filepath);
+	ShaderProgramSource ParseShader(const std::string& filepath, const std::string& geomFilepath);
+	std::stringstream ParseGeometryShader(const std::string& geomFilepath);
 };
 

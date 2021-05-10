@@ -12,8 +12,6 @@ PainterlyParticleSystem::PainterlyParticleSystem(int size, std::string vfshaderf
 {
 	//first we are going to make the vertex object array
 	layout.push<float>(4); //push position
-
-
 	//initialize buffers
 	initializeArray(objectfilepath);
 	generateMasterIndexArray();
