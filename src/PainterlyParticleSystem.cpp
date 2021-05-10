@@ -15,8 +15,8 @@ PainterlyParticleSystem::PainterlyParticleSystem(int size, std::string vfshaderf
 	layout.push<float>(4); //push rotation
 
 	//initialize buffers
-	generateMasterIndexArray();
 	initializeArray(objectfilepath);
+	generateMasterIndexArray();
 	vb.init(m_particles.data(), m_size * sizeof(PaintParticle), DYNAMIC_DRAW);
 	va.addBuffer(vb, layout);
 }
@@ -45,12 +45,13 @@ void PainterlyParticleSystem::initializeArray(std::string objectfilepath) {
 	//loop through indices
 	for (int i = 0; i < indices.size(); i += 3) {
 		PaintParticle center;
-		//center.position.w = 0.0f;
+		center.position.w = 1.0f;
 		center.position.x = (vertices[i].Position.X + vertices[i+1].Position.X + vertices[i+2].Position.X) /3.0f;
 		center.position.y = (vertices[i].Position.Y + vertices[i + 1].Position.Y + vertices[i + 2].Position.Y) / 3.0f;
 		center.position.z = (vertices[i].Position.Z + vertices[i + 1].Position.Z + vertices[i + 2].Position.Z) / 3.0f;
 		m_particles.push_back(center);
 	}
+	m_size = m_particles.size();
 }
 
 unsigned int PainterlyParticleSystem::getShaderID()
@@ -66,8 +67,6 @@ sets vf shader uniforms and makes draw call
 */
 void PainterlyParticleSystem::batchRenderSystem()
 {
-	std::cout << "NUM PARTICLEs: " << std::endl;
-	std::cout << m_particles.size() << std::endl;
 	shader.bind();
 	//vb.updateBufferData(m_particles.data(), m_particles.size() * sizeof(PaintParticle), 0, DYNAMIC_DRAW);
 	IndexBuffer ib(m_masterIndexBuffer.data(), m_masterIndexBuffer.size());
