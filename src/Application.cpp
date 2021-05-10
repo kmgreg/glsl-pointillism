@@ -61,7 +61,7 @@ int main(void)
     double ypos = 0.0f;
     int size = 60000;
    // ParticleSystem ps = ParticleSystem(size, glm::vec3(0.0f, 0.0f, 0.0f), "res/shaders/Basic.shader", "res/shaders/Rainbow.compute");
-    PainterlyParticleSystem pps = PainterlyParticleSystem(100, "res/shaders/Blue.shader", "res/Shaders/Smoke.compute", "res/objects/spherefl.obj");
+    PainterlyParticleSystem pps = PainterlyParticleSystem(100, "res/shaders/Blue.shader", "res/Shaders/Smoke.compute", "res/objects/spherefl.obj", "res/shaders/shader.geom");
     glm::mat4 view = glm::mat4(1.0);
     unsigned int pps_shaderID = pps.getShaderID();
     glUseProgram(pps_shaderID);

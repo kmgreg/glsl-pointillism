@@ -48,7 +48,7 @@ private:
 	unsigned int shaderId;
 
 public:
-	PainterlyParticleSystem(int size, std::string vfshaderfilepath, std::string computefilepath, std::string objectfilepath);
+	PainterlyParticleSystem(int size, std::string vfshaderfilepath, std::string computefilepath, std::string objectfilepath, std::string geoshaderfilepath);
 	void initializeArray(std::string objectfilepath); //called in constructor will initialize particle data
 	void generateMasterIndexArray(); //called in constructor, will initialize index buffer 
 	unsigned int getShaderID(); //return shader program

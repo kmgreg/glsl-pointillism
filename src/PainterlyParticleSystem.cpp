@@ -7,8 +7,8 @@ Class to represent a particle system for the static painterly shader particles
 
 #include "PainterlyParticleSystem.h"
 #include "OBJ_Loader.h"
-PainterlyParticleSystem::PainterlyParticleSystem(int size, std::string vfshaderfilepath, std::string computefilepath, std::string objectfilepath) :
-	vb(), shader(vfshaderfilepath), m_size(size), cShader(computefilepath)
+PainterlyParticleSystem::PainterlyParticleSystem(int size, std::string vfshaderfilepath, std::string computefilepath, std::string objectfilepath, std::string geoshaderfilepath) :
+	vb(), shader(vfshaderfilepath, geoshaderfilepath), m_size(size), cShader(computefilepath)
 {
 	//first we are going to make the vertex object array
 	layout.push<float>(4); //push position

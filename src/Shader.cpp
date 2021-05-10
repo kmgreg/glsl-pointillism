@@ -17,7 +17,7 @@ Shader::Shader(const std::string& filepath, const std::string& geomFilepath)
     : m_filepath(filepath), m_rendererID(0), m_geomFilepath(geomFilepath)
 {
     ShaderProgramSource shaderSrcCode = ParseShader(filepath, geomFilepath);
-    m_rendererID = createShader(shaderSrcCode.VertexSource, shaderSrcCode.FragmentSource);
+    m_rendererID = createShader(shaderSrcCode.VertexSource, shaderSrcCode.FragmentSource, shaderSrcCode.GeometrySource);
     std::cout << "m_rendererID " << m_rendererID << std::endl;
 }
 
