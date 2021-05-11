@@ -8,7 +8,7 @@ Class to represent a particle system for the static painterly shader particles
 #include "PainterlyParticleSystem.h"
 #include "OBJ_Loader.h"
 PainterlyParticleSystem::PainterlyParticleSystem(int size, std::string vfshaderfilepath, std::string computefilepath, std::string objectfilepath, std::string geoshaderfilepath) :
-	vb(), shader(vfshaderfilepath, geoshaderfilepath), m_size(size), cShader(computefilepath)
+	vb(), shader(vfshaderfilepath, geoshaderfilepath), m_size(size), cShader(computefilepath), m_transformationMatrix(1.0f)
 {
 	//first we are going to make the vertex object array
 	layout.push<float>(4); //push position
@@ -69,11 +69,15 @@ void PainterlyParticleSystem::batchRenderSystem()
 	shader.bind();
 	//vb.updateBufferData(m_particles.data(), m_particles.size() * sizeof(PaintParticle), 0, DYNAMIC_DRAW);
 	IndexBuffer ib(m_masterIndexBuffer.data(), m_masterIndexBuffer.size());
-	glm::mat4 model = glm::mat4(1.0);
-	shader.setUniformMat4f("u_model", model);
+	shader.setUniformMat4f("u_model", m_transformationMatrix);
 	renderer.draw(va, ib, shader);
 }
 
 void PainterlyParticleSystem::onUpdate() {
 	batchRenderSystem();
+}
+
+void PainterlyParticleSystem::setTransformationMatrix(glm::mat4 tMat)
+{
+	m_transformationMatrix = tMat;
 }

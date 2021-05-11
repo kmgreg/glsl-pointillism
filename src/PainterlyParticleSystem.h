@@ -38,6 +38,7 @@ private:
 	Shader shader;
 	ComputeShader cShader;
 	Renderer renderer;
+	glm::mat4 m_transformationMatrix;
 
 
 	int m_size;
@@ -54,6 +55,7 @@ public:
 	unsigned int getShaderID(); //return shader program
 	void batchRenderSystem(); //make the draw call for all the particles
 	void onUpdate(); //we will update the particles to rotate towards the camera every frame
+	void setTransformationMatrix(glm::mat4 tMat);
 	
 
 };

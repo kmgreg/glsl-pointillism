@@ -30,6 +30,7 @@ vec3 simplexGrid (vec2 st) {
 
 void main() {   
     fColor = _color[0];
+    
     gl_Position = gl_in[0].gl_Position; 
     EmitVertex();
 	gl_Position = gl_in[0].gl_Position + vec4(0.01, 0.01, 0.01, 0.01); 
