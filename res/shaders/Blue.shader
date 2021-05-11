@@ -19,7 +19,8 @@ void main()
 #version 430 core
 layout(location = 0) out vec4 color;
 in vec4 fColor;
+in vec4 posit;
 void main()
 {
-	color = fColor;
+	color = fColor + 0.2 * (posit); // Lightly modulate
 };

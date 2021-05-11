@@ -53,14 +53,14 @@ int main(void)
     if (glewInit() != GLEW_OK) std::cout << "Error!" << std::endl;
 
     glm::mat4 identity = glm::mat4(1.0f);
-    glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, 1.0f, -1.0f);
+    glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, 1.0f, -1.0f); 
     glm::mat4 model = glm::mat4(1.0f);   
 
     /*initilize render loop variables*/
     double xpos = 0.0f;
     double ypos = 0.0f;
     int size = 60000;
-   // ParticleSystem ps = ParticleSystem(size, glm::vec3(0.0f, 0.0f, 0.0f), "res/shaders/Basic.shader", "res/shaders/Rainbow.compute");
+   // ParticleSystem ps = ParticleSystem(size, glm::vec3(0.0f, 0.0f, 0.0f), "   res/shaders/Basic.shader", "res/shaders/Rainbow.compute");
     PainterlyParticleSystem pps = PainterlyParticleSystem(100, "res/shaders/Blue.shader", "res/Shaders/Smoke.compute", "res/objects/spherefl.obj", "res/shaders/shader.geom");
     glm::mat4 view = glm::mat4(1.0);
     unsigned int pps_shaderID = pps.getShaderID();
@@ -78,6 +78,7 @@ int main(void)
    
     renderer.enableBlend();
     glEnable(GL_PROGRAM_POINT_SIZE);
+    glPointSize(20);
    // glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
    // glEnable(GL_POINT_SPRITE);
     glEnable(GL_POINT_SMOOTH);
