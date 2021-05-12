@@ -11,7 +11,7 @@
 #include "Shader.h"
 #include "VertexBufferLayout.h"
 #include "VertexArray.h"
-//#include "ParticleSystem.h"
+#include "Camera.h"
 #include "PainterlyParticleSystem.h"
 #include "Random.h"
 
@@ -30,6 +30,36 @@ glm::vec3 getMouseCoordinates(double x, double y, int windowx, int windowy, glm:
     return no;
 }
 
+glm::vec3 pollKeysToMoveCamera(GLFWwindow* window) {
+    glm::vec3 movement = glm::vec3(0.0f);
+    int state;
+    //move cam into the screen
+    state = glfwGetKey(window, GLFW_KEY_W);
+    if (state == GLFW_PRESS) {
+        movement.z = movement.z - 1.0f;
+    }
+    state = glfwGetKey(window, GLFW_KEY_S);
+    if (state == GLFW_PRESS) {
+        movement.z = movement.z + 1.0f;
+    }
+    state = glfwGetKey(window, GLFW_KEY_A);
+    if (state == GLFW_PRESS) {
+        movement.x = movement.x - 1.0f;
+    }
+    state = glfwGetKey(window, GLFW_KEY_D);
+    if (state == GLFW_PRESS) {
+        movement.x = movement.x + 1.0f;
+    }
+    state = glfwGetKey(window, GLFW_KEY_Q);
+    if (state == GLFW_PRESS) {
+        movement.y = movement.y + 1.0f;
+    }
+    state = glfwGetKey(window, GLFW_KEY_E);
+    if (state == GLFW_PRESS) {
+        movement.y = movement.y - 1.0f;
+    }
+    return movement;
+}
 
 int main(void)
 {
@@ -40,7 +70,7 @@ int main(void)
         return -1;
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(640, 480, "Pointillism", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -50,17 +80,9 @@ int main(void)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
     
-    if (glewInit() != GLEW_OK) std::cout << "Error!" << std::endl;
-
-    glm::mat4 identity = glm::mat4(1.0f);
-    glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, 1.0f, -1.0f); 
-    glm::mat4 model = glm::mat4(1.0f);   
+    if (glewInit() != GLEW_OK) std::cout << "glewInit() Error!" << std::endl;
 
     /*initilize render loop variables*/
-    double xpos = 0.0f;
-    double ypos = 0.0f;
-    int size = 60000;
-   // ParticleSystem ps = ParticleSystem(size, glm::vec3(0.0f, 0.0f, 0.0f), "   res/shaders/Basic.shader", "res/shaders/Rainbow.compute");
     PainterlyParticleSystem pps = PainterlyParticleSystem(100, "res/shaders/Blue.shader", "res/Shaders/Smoke.compute", "res/objects/bunny.obj", "res/shaders/shader.geom");
     pps.setTransformationMatrix(
         glm::mat4(6.0f, 0.0f, 0.0f, 0.0f,
@@ -68,56 +90,27 @@ int main(void)
                   0.0f, 0.0f, 6.0f, 0.0f,
                   0.0f, 0.0f, 0.0f, 1.0f)
     );
-    glm::mat4 view = glm::mat4(1.0);
-    unsigned int pps_shaderID = pps.getShaderID();
-    glUseProgram(pps_shaderID);
-    GLuint projLoc = glGetUniformLocation(pps_shaderID, "u_proj");
-    GLuint viewLoc = glGetUniformLocation(pps_shaderID, "u_view");
-    GLuint modLoc = glGetUniformLocation(pps_shaderID, "u_model");
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, &proj[0][0]);
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
+    pps.getShader().bind();
     Renderer renderer;
-
+    Camera camera;
     
-
     /*any additional render settings here*/
-   
     renderer.enableBlend();
     glEnable(GL_PROGRAM_POINT_SIZE);
-    glPointSize(20);
-   // glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-   // glEnable(GL_POINT_SPRITE);
+    glPointSize(1);
     glEnable(GL_POINT_SMOOTH);
    
+    /*settings for camera movement speed, TODO this should be handled in the camera class eventually*/
+    float cameraSpeed = 0.01;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /*RENDERING CODE */
         renderer.clear();
+        camera.moveCamera(pollKeysToMoveCamera(window));
+        camera.onUpdate(pps.getShader()); //call the camera first because it needs to set view and projection matrices before the render
         pps.onUpdate();
-
-       /* ///* update particle system   */
-        /*int LMBState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-        if (LMBState == GLFW_PRESS)
-        {
-            glfwGetCursorPos(window, &xpos, &ypos);
-            glm::vec3 worldcoordspos = getMouseCoordinates(xpos, ypos, 640, 480, proj, view);
-            std::cout << "Xnew: " << worldcoordspos[0] << " Y: " << worldcoordspos[1] << std::endl;
-            ps.updateOrigin(worldcoordspos[0], worldcoordspos[1]);
-            ps.emit(25);
-        } 
-        ps.onUpdate();*/
-        
-        /*END RENDER CODE*/
-
-        //EXPERIMENTAL
-      /*  shader.setUniform4fv("u_color", color);*/
-        /*shader.setUniformMat4f("u_model", model);
-        shader.setUniformMat4f("u_proj", proj);
-        shader.setUniformMat4f("u_view", view);
-        shader.setUniform3fv("u_lerpColors", 6, lerpColors);
-        renderer.draw(va, ib, shader);*/
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
