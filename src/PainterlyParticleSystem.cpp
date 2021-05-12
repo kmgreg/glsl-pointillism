@@ -7,8 +7,8 @@ Class to represent a particle system for the static painterly shader particles
 
 #include "PainterlyParticleSystem.h"
 #include "OBJ_Loader.h"
-PainterlyParticleSystem::PainterlyParticleSystem(int size, std::string vfshaderfilepath, std::string objectfilepath, std::string geoshaderfilepath) :
-	vb(), shader(vfshaderfilepath, geoshaderfilepath), m_size(size), m_transformationMatrix(1.0f), minAreaLeeway(2.0f)
+PainterlyParticleSystem::PainterlyParticleSystem(std::string vfshaderfilepath, std::string objectfilepath, std::string geoshaderfilepath, float leeway) :
+	vb(), shader(vfshaderfilepath, geoshaderfilepath), m_size(0), m_transformationMatrix(1.0f), minAreaLeeway(leeway)
 {
 	//first we are going to make the vertex object array
 	layout.push<float>(4); //push position
@@ -17,6 +17,19 @@ PainterlyParticleSystem::PainterlyParticleSystem(int size, std::string vfshaderf
 	vb.init(m_particles.data(), m_size * sizeof(PaintParticle), DYNAMIC_DRAW);
 	va.addBuffer(vb, layout);
 	m_objColor = glm::vec4(0.1, 0.7, 1.0, 1.0);
+}
+
+PainterlyParticleSystem::PainterlyParticleSystem(std::string objectfilepath, Shader& precompiledshader, float leeway) : 
+	m_transformationMatrix(1.0f), m_size(0), minAreaLeeway(leeway)
+{
+	layout.push<float>(4); //push position
+	initializeArray(objectfilepath);
+	generateMasterIndexArray();
+	vb.init(m_particles.data(), m_size * sizeof(PaintParticle), DYNAMIC_DRAW);
+	va.addBuffer(vb, layout);
+	m_objColor = glm::vec4(0.1, 0.7, 1.0, 1.0);
+	shader = precompiledshader;
+
 }
 
 /*
@@ -36,28 +49,26 @@ void PainterlyParticleSystem::initializeArray(std::string objectfilepath) {
 	std::cout << loader.LoadedMeshes[0].MeshName << std::endl;
 	std::vector<objl::Vertex> vertices = loader.LoadedMeshes[0].Vertices;
 	std::vector<unsigned int> indices = loader.LoadedMeshes[0].Indices;
+	std::cout << "indices size, vertices size: " << std::endl;
 	std::cout << indices.size() << std::endl;
 	std::cout << vertices.size() << std::endl;
 
-	float minArea;
+	float minArea(getTriangleArea(glm::vec3(vertices[0].Position.X, vertices[0].Position.Y, vertices[0].Position.Z),
+		glm::vec3(vertices[0 + 1].Position.X, vertices[0 + 1].Position.Y, vertices[0 + 1].Position.Z),
+		glm::vec3(vertices[0 + 2].Position.X, vertices[0 + 2].Position.Y, vertices[0 + 2].Position.Z)));{}
+	std::cout << minArea << std::endl;
 	//loop through mesh triangles to get area data
 	for (int i = 0; i < indices.size(); i += 3) {
-		if (i == 0) {
-			minArea = getTriangleArea(glm::vec3(vertices[i].Position.X, vertices[i].Position.Y, vertices[i].Position.Z),
-									  glm::vec3(vertices[i+1].Position.X, vertices[i+1].Position.Y, vertices[i+1].Position.Z),
-									  glm::vec3(vertices[i+2].Position.X, vertices[i+2].Position.Y, vertices[i+2].Position.Z));
+		float area = getTriangleArea(glm::vec3(vertices[i].Position.X, vertices[i].Position.Y, vertices[i].Position.Z),
+			glm::vec3(vertices[i + 1].Position.X, vertices[i + 1].Position.Y, vertices[i + 1].Position.Z),
+			glm::vec3(vertices[i + 2].Position.X, vertices[i + 2].Position.Y, vertices[i + 2].Position.Z));
+		if (area < minArea) {
+			minArea = area;
 		}
-		else {
-			float area = getTriangleArea(glm::vec3(vertices[i].Position.X, vertices[i].Position.Y, vertices[i].Position.Z),
-				glm::vec3(vertices[i + 1].Position.X, vertices[i + 1].Position.Y, vertices[i + 1].Position.Z),
-				glm::vec3(vertices[i + 2].Position.X, vertices[i + 2].Position.Y, vertices[i + 2].Position.Z));
-			if (area < minArea) {
-				minArea = area;
-			}
-		}	
 	}
 	std::cout << "Min area calculated: " << std::endl;
 	std::cout << minArea << std::endl;
+
 	//loop through indices again and place particles
 	for (int i = 0; i < indices.size(); i += 3) {
 		PaintParticle center;
@@ -169,11 +180,6 @@ PaintParticle PainterlyParticleSystem::getTriangleCenterAsPaintParticle(glm::vec
 	center.position.y = (a.y + b.y + c.y) / 3.0f;
 	center.position.z = (a.z + b.z + c.z) / 3.0f;
 	return center;
-}
-
-void PainterlyParticleSystem::setMinAreaLeeway(float leeway)
-{
-	minAreaLeeway = leeway;
 }
 
 void PainterlyParticleSystem::setObjColor(glm::vec4 color)

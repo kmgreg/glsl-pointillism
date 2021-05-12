@@ -2,6 +2,10 @@
 @authors = Lauren Cole, Kurt Gregorek
 entry point for painterly particle system assignment
 gets keyboard input and calls update functions for particle system and camera
+
+NOTE: an expensive recursive function is used to initialize the particle systems. 
+it is only called in the particle system constructor, not per frame. 
+the application may take a moment to load intially, but should have a reasonable framerate
 */
 
 #include <GL/glew.h>
@@ -93,36 +97,35 @@ int main(void)
     
     if (glewInit() != GLEW_OK) std::cout << "glewInit() Error!" << std::endl;
 
-    /*initilize render loop variables*/
-    PainterlyParticleSystem pps = PainterlyParticleSystem(100, "res/shaders/Pointillism.shader", "res/objects/teapot.obj", "res/shaders/Pointillism.geom");
-    
-    //good scaling for bunny
-    /*pps.setTransformationMatrix(
-        glm::mat4(6.0f, 0.0f, 0.0f, 0.0f,
-                  0.0f, 6.0f, 0.0f, 0.0f,
-                  0.0f, 0.0f, 6.0f, 0.0f,
-                  0.0f, 0.0f, 0.0f, 1.0f)
-    );*/
-    //good scaling for teapot
-    pps.setTransformationMatrix(
-        glm::mat4(0.5f, 0.0f, 0.0f, 0.0f,
-            0.0f, 0.5f, 0.0f, 0.0f,
-            0.0f, 0.0f, 0.5f, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f)
-    );
-    //pps.setTransformationMatrix(glm::mat4(1.0f));
-    pps.getShader().bind();
+    /*initilize particle systems variables*/
+    PainterlyParticleSystem teapotPS = PainterlyParticleSystem("res/shaders/Pointillism.shader", 
+        "res/objects/teapot.obj", "res/shaders/Pointillism.geom", 50);
+    PainterlyParticleSystem bunnyPS = PainterlyParticleSystem("res/objects/bunny.obj", teapotPS.getShader(), 100);
+    //settings for bunny
+    glm::mat4 bunnyModelMatrix = glm::mat4(1.0f);
+    bunnyModelMatrix = glm::translate(bunnyModelMatrix, glm::vec3(1.0f, 0.0f, 0.0f));
+    bunnyModelMatrix = glm::scale(bunnyModelMatrix, glm::vec3(6.0f, 6.0f, 6.0f));
+    bunnyPS.setTransformationMatrix(bunnyModelMatrix);
+
+    //settings for teapot
+    glm::mat4 teapotModelMatrix = glm::mat4(1.0f);
+    teapotModelMatrix = glm::scale(teapotModelMatrix, glm::vec3(0.3f, 0.3f, 0.3f));
+    teapotModelMatrix = glm::translate(teapotModelMatrix, glm::vec3(-4.0f, 0.0f, 0.0f));
+    teapotPS.setObjColor(glm::vec4(0.5f, 0.3f, 0.4f, 1.0f));
+    teapotPS.setTransformationMatrix(teapotModelMatrix);
+
+
+
+    //they use the same instance of Shader we can bind the shader from whatever object
+    bunnyPS.getShader().bind();
     Renderer renderer;
     Camera camera;
     
-    /*any additional render settings here*/
+    /*additional render settings*/
     renderer.enableBlend();
     glEnable(GL_PROGRAM_POINT_SIZE);
-    glPointSize(2);
+    glPointSize(2); //point size will be the same for all objects in scene because thats how it be in paintings
     glEnable(GL_POINT_SMOOTH);
-   
-    /*settings for camera movement speed, TODO this should be handled in the camera class eventually*/
-    float cameraSpeed = 0.01;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -130,8 +133,9 @@ int main(void)
         /*RENDERING CODE */
         renderer.clear();
         camera.moveCamera(pollKeysToMoveCamera(window));
-        camera.onUpdate(pps.getShader()); //call the camera update first because it needs to set view and projection matrices before the render
-        pps.onUpdate(); //makes the draw call
+        camera.onUpdate(bunnyPS.getShader()); //call the camera update first because it needs to set view and projection matrices before the render
+        teapotPS.onUpdate(); //makes the draw call
+        bunnyPS.onUpdate();
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);

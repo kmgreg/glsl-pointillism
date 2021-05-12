@@ -55,7 +55,8 @@ private:
 	float getTriangleArea(glm::vec3 a, glm::vec3 b, glm::vec3 c);
 
 public:
-	PainterlyParticleSystem(int size, std::string vfshaderfilepath, std::string objectfilepath, std::string geoshaderfilepath);
+	PainterlyParticleSystem(std::string vfshaderfilepath, std::string objectfilepath, std::string geoshaderfilepath, float leeway);
+	PainterlyParticleSystem(std::string objectfilepath, Shader& precompiledshader, float leeway);
 	void initializeArray(std::string objectfilepath); //called in constructor will initialize particle data
 	void generateMasterIndexArray(); //called in constructor, will initialize index buffer 
 	unsigned int getShaderID(); //return shader program
@@ -65,7 +66,6 @@ public:
 	Shader& getShader();
 	std::vector<PaintParticle> addPoints(float minArea, glm::vec3 a, glm::vec3 b, glm::vec3 c);
 	PaintParticle getTriangleCenterAsPaintParticle(glm::vec3 a, glm::vec3 b, glm::vec3 c);
-	void setMinAreaLeeway(float leeway);
 	void setObjColor(glm::vec4 color);
 	glm::vec4 getObjColor();
 };
