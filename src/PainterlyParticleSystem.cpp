@@ -65,9 +65,58 @@ void PainterlyParticleSystem::initializeArray(std::string objectfilepath) {
 		center.position.y = (vertices[i].Position.Y + vertices[i+1].Position.Y + vertices[i+2].Position.Y) / 3.0f;
 		center.position.z = (vertices[i].Position.Z + vertices[i+1].Position.Z + vertices[i+2].Position.Z) / 3.0f;
 		m_particles.push_back(center);
+
+		//we pushed the center point in the triangle
+		//if our triangle is too big we need to add more points for coverage
+		//inner loop to add extra points
+		float area = getTriangleArea(
+			glm::vec3(vertices[i].Position.X, vertices[i].Position.Y, vertices[i].Position.Z),
+			glm::vec3(vertices[i + 1].Position.X, vertices[i + 1].Position.Y, vertices[i + 1].Position.Z),
+			glm::vec3(vertices[i + 2].Position.X, vertices[i + 2].Position.Y, vertices[i + 2].Position.Z));
+		if (area > minArea*2) {
+			std::vector<PaintParticle> additionalPoints = addPoints(minArea*2,
+				glm::vec3(vertices[i].Position.X, vertices[i].Position.Y, vertices[i].Position.Z),
+				glm::vec3(vertices[i + 1].Position.X, vertices[i + 1].Position.Y, vertices[i + 1].Position.Z),
+				glm::vec3(vertices[i + 2].Position.X, vertices[i + 2].Position.Y, vertices[i + 2].Position.Z)
+			);
+			m_particles.insert(m_particles.end(), additionalPoints.begin(), additionalPoints.end());
+		}
 	}
 	m_size = m_particles.size();
 	std::cout << m_size << std::endl;
+}
+
+std::vector<PaintParticle> PainterlyParticleSystem::addPoints(float minArea, glm::vec3 a, glm::vec3 b, glm::vec3 c)
+{
+	//recursion in c++
+	//im very sad i have to do this :(
+	//anyway heres the base case
+	float area = getTriangleArea(a, b, c);
+	std::vector<PaintParticle> points;
+	if (area <= minArea) {
+		points.push_back(getTriangleCenterAsPaintParticle(a, b, c));
+		return points;
+	}
+	//if the triangle is big we gotta break it into littler ones
+	else {
+		//still add our center point
+		points.push_back(getTriangleCenterAsPaintParticle(a, b, c));
+		glm::vec3 center = glm::vec3(
+			(a.x + b.x + c.x) / 3.0f,
+			(a.y + b.y + c.y) / 3.0f,
+			(a.z + b.z + c.z) / 3.0f
+		);
+		std::vector<PaintParticle> pointsAB = addPoints(minArea, a, b, center);
+		std::vector<PaintParticle> pointsAC = addPoints(minArea, a, c, center);
+		std::vector<PaintParticle> pointsBC = addPoints(minArea, b, c, center);
+
+		//add the points in our return vectors to our main points vector
+		points.insert(points.end(), pointsAB.begin(), pointsAB.end());
+		points.insert(points.end(), pointsAC.begin(), pointsAC.end());
+		points.insert(points.end(), pointsBC.begin(), pointsBC.end());
+
+		return points;
+	}
 }
 
 unsigned int PainterlyParticleSystem::getShaderID()
@@ -108,4 +157,14 @@ float PainterlyParticleSystem::getTriangleArea(glm::vec3 a, glm::vec3 b, glm::ve
 	glm::vec3 ab = b - a;
 	glm::vec3 ac = a - c;
 	return glm::length(glm::cross(ab, ac)) / 2;
+}
+
+PaintParticle PainterlyParticleSystem::getTriangleCenterAsPaintParticle(glm::vec3 a, glm::vec3 b, glm::vec3 c)
+{
+	PaintParticle center;
+	center.position.w = 1.0f;
+	center.position.x = (a.x + b.x + c.x) / 3.0f;
+	center.position.y = (a.y + b.y + c.y) / 3.0f;
+	center.position.z = (a.z + b.z + c.z) / 3.0f;
+	return center;
 }

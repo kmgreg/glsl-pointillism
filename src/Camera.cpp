@@ -76,3 +76,13 @@ void Camera::onUpdate(Shader shader)
     setViewing(shader);
     setFrustum(shader);
 }
+
+void Camera::setMovementSpeed(float movementspeed)
+{
+	cameraSpeed = movementspeed;
+}
+
+float Camera::getMovementSpeed()
+{
+	return cameraSpeed;
+}

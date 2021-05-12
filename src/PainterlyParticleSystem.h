@@ -61,7 +61,7 @@ public:
 	void onUpdate(); //we will update the particles to rotate towards the camera every frame
 	void setTransformationMatrix(glm::mat4 tMat);
 	Shader& getShader();
-	
-
+	std::vector<PaintParticle> addPoints(float minArea, glm::vec3 a, glm::vec3 b, glm::vec3 c);
+	PaintParticle getTriangleCenterAsPaintParticle(glm::vec3 a, glm::vec3 b, glm::vec3 c);
 };
 

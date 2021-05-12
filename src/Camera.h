@@ -32,4 +32,6 @@ public:
 	void onUpdate(Shader shader);
 	void setFrustum(Shader shader);
 	void setViewing(Shader shader);
+	float getMovementSpeed();
+	void setMovementSpeed(float movementspeed);
 };

@@ -118,7 +118,7 @@ int main(void)
     /*any additional render settings here*/
     renderer.enableBlend();
     glEnable(GL_PROGRAM_POINT_SIZE);
-    glPointSize(1);
+    glPointSize(2);
     glEnable(GL_POINT_SMOOTH);
    
     /*settings for camera movement speed, TODO this should be handled in the camera class eventually*/
