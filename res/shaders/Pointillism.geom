@@ -1,6 +1,6 @@
 #version 330 core
 layout (points) in;
-layout (points, max_vertices = 220) out;
+layout (points, max_vertices = 256) out;
 in vec4 _color[];
 out vec4 fColor;
 out vec4 posit;

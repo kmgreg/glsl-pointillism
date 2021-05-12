@@ -49,6 +49,8 @@ private:
 	std::vector<unsigned int> m_masterIndexBuffer;
 	std::vector<PaintParticle> m_masterVBO;
 	unsigned int shaderId;
+	glm::vec4 m_objColor;
+	float minAreaLeeway;
 
 	float getTriangleArea(glm::vec3 a, glm::vec3 b, glm::vec3 c);
 
@@ -63,5 +65,8 @@ public:
 	Shader& getShader();
 	std::vector<PaintParticle> addPoints(float minArea, glm::vec3 a, glm::vec3 b, glm::vec3 c);
 	PaintParticle getTriangleCenterAsPaintParticle(glm::vec3 a, glm::vec3 b, glm::vec3 c);
+	void setMinAreaLeeway(float leeway);
+	void setObjColor(glm::vec4 color);
+	glm::vec4 getObjColor();
 };
 

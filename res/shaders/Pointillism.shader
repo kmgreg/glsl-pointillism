@@ -10,7 +10,7 @@ uniform mat4 u_proj;
 uniform mat4 u_model;
 void main()
 {
-    gl_PointSize = 1.0f;
+    //gl_PointSize = 1.0f;
 	_color = vec4(0.1, 0.7, 1.0, 1.0);
 	gl_Position = u_proj * u_view * u_model * position;
 };
@@ -20,6 +20,7 @@ void main()
 layout(location = 0) out vec4 color;
 in vec4 fColor;
 in vec4 posit;
+uniform vec4 objColor;
 // From https://thebookofshaders.com/11/
 vec2 skew (vec2 st) {
     vec2 r = vec2(0.0);
@@ -44,5 +45,5 @@ vec3 simplexGrid (vec2 st) {
 }
 void main()
 {
-	color = fColor + 0.2 * vec4(simplexGrid(100 * tan(posit.x) * posit.xy), 1)	; // Lightly modulate
+	color = objColor + 0.2 * vec4(simplexGrid(100 * tan(posit.x) * posit.xy), 1)	; // Lightly modulate
 };

@@ -94,7 +94,7 @@ int main(void)
     if (glewInit() != GLEW_OK) std::cout << "glewInit() Error!" << std::endl;
 
     /*initilize render loop variables*/
-    PainterlyParticleSystem pps = PainterlyParticleSystem(100, "res/shaders/Blue.shader", "res/objects/teapot.obj", "res/shaders/shader.geom");
+    PainterlyParticleSystem pps = PainterlyParticleSystem(100, "res/shaders/Pointillism.shader", "res/objects/teapot.obj", "res/shaders/Pointillism.geom");
     
     //good scaling for bunny
     /*pps.setTransformationMatrix(

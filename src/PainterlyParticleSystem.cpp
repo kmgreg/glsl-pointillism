@@ -8,7 +8,7 @@ Class to represent a particle system for the static painterly shader particles
 #include "PainterlyParticleSystem.h"
 #include "OBJ_Loader.h"
 PainterlyParticleSystem::PainterlyParticleSystem(int size, std::string vfshaderfilepath, std::string objectfilepath, std::string geoshaderfilepath) :
-	vb(), shader(vfshaderfilepath, geoshaderfilepath), m_size(size), m_transformationMatrix(1.0f)
+	vb(), shader(vfshaderfilepath, geoshaderfilepath), m_size(size), m_transformationMatrix(1.0f), minAreaLeeway(2.0f)
 {
 	//first we are going to make the vertex object array
 	layout.push<float>(4); //push position
@@ -16,6 +16,7 @@ PainterlyParticleSystem::PainterlyParticleSystem(int size, std::string vfshaderf
 	generateMasterIndexArray();
 	vb.init(m_particles.data(), m_size * sizeof(PaintParticle), DYNAMIC_DRAW);
 	va.addBuffer(vb, layout);
+	m_objColor = glm::vec4(0.1, 0.7, 1.0, 1.0);
 }
 
 /*
@@ -73,8 +74,8 @@ void PainterlyParticleSystem::initializeArray(std::string objectfilepath) {
 			glm::vec3(vertices[i].Position.X, vertices[i].Position.Y, vertices[i].Position.Z),
 			glm::vec3(vertices[i + 1].Position.X, vertices[i + 1].Position.Y, vertices[i + 1].Position.Z),
 			glm::vec3(vertices[i + 2].Position.X, vertices[i + 2].Position.Y, vertices[i + 2].Position.Z));
-		if (area > minArea*2) {
-			std::vector<PaintParticle> additionalPoints = addPoints(minArea*2,
+		if (area > minArea*minAreaLeeway) {
+			std::vector<PaintParticle> additionalPoints = addPoints(minArea*minAreaLeeway,
 				glm::vec3(vertices[i].Position.X, vertices[i].Position.Y, vertices[i].Position.Z),
 				glm::vec3(vertices[i + 1].Position.X, vertices[i + 1].Position.Y, vertices[i + 1].Position.Z),
 				glm::vec3(vertices[i + 2].Position.X, vertices[i + 2].Position.Y, vertices[i + 2].Position.Z)
@@ -135,6 +136,7 @@ void PainterlyParticleSystem::batchRenderSystem()
 	shader.bind();
 	IndexBuffer ib(m_masterIndexBuffer.data(), m_masterIndexBuffer.size());
 	shader.setUniformMat4f("u_model", m_transformationMatrix);
+	shader.setUniform4fv("objColor", m_objColor);
 	renderer.draw(va, ib, shader);
 }
 
@@ -167,4 +169,19 @@ PaintParticle PainterlyParticleSystem::getTriangleCenterAsPaintParticle(glm::vec
 	center.position.y = (a.y + b.y + c.y) / 3.0f;
 	center.position.z = (a.z + b.z + c.z) / 3.0f;
 	return center;
+}
+
+void PainterlyParticleSystem::setMinAreaLeeway(float leeway)
+{
+	minAreaLeeway = leeway;
+}
+
+void PainterlyParticleSystem::setObjColor(glm::vec4 color)
+{
+	m_objColor = color;
+}
+
+glm::vec4 PainterlyParticleSystem::getObjColor()
+{
+	return m_objColor;
 }
