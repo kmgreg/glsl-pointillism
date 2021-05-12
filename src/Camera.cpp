@@ -42,17 +42,17 @@ void Camera::moveCamera(glm::vec3 translation)
 }
 
 ///
-/// This function sets up a frustum projection of the scene.
-/// based from Carithers lab framework at RIT
-/// @param shader- shader to which we are sending data
+/// @param shader- Shader to which we are sending data
 /// 
 void Camera::setFrustum(Shader shader)
 {
-	glm::mat4 pmat = glm::frustum(-2.0f, 2.0f, -1.5f, 1.5f, 1.0f, -10.0f);
-	//pmat = glm::mat4(1.0f);
+	glm::mat4 pmat = glm::frustum(-2.0f, 2.0f, -1.5f, 1.5f, 2.0f, -10.0f);
     shader.setUniformMat4f("u_proj", pmat);
 }
 
+///
+/// @param shader- Shader to which we are sending data
+/// 
 void Camera::setViewing(Shader shader)
 {
 	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -61,6 +61,10 @@ void Camera::setViewing(Shader shader)
 	shader.setUniformMat4f("u_view", vmat);
 }
 
+/*
+meant to be called every frame, sets the view and projection matrices
+based on current camera position
+*/
 void Camera::onUpdate(Shader shader)
 {
     setViewing(shader);

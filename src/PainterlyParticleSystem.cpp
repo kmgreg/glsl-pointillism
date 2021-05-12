@@ -7,12 +7,11 @@ Class to represent a particle system for the static painterly shader particles
 
 #include "PainterlyParticleSystem.h"
 #include "OBJ_Loader.h"
-PainterlyParticleSystem::PainterlyParticleSystem(int size, std::string vfshaderfilepath, std::string computefilepath, std::string objectfilepath, std::string geoshaderfilepath) :
-	vb(), shader(vfshaderfilepath, geoshaderfilepath), m_size(size), cShader(computefilepath), m_transformationMatrix(1.0f)
+PainterlyParticleSystem::PainterlyParticleSystem(int size, std::string vfshaderfilepath, std::string objectfilepath, std::string geoshaderfilepath) :
+	vb(), shader(vfshaderfilepath, geoshaderfilepath), m_size(size), m_transformationMatrix(1.0f)
 {
 	//first we are going to make the vertex object array
 	layout.push<float>(4); //push position
-	//initialize buffers
 	initializeArray(objectfilepath);
 	generateMasterIndexArray();
 	vb.init(m_particles.data(), m_size * sizeof(PaintParticle), DYNAMIC_DRAW);
@@ -31,8 +30,6 @@ void PainterlyParticleSystem::generateMasterIndexArray()
 }
 
 void PainterlyParticleSystem::initializeArray(std::string objectfilepath) {
-	//TODO this should initialize all the particles in their proper positions
-	//use the object loader class to initialize an array
 	objl::Loader loader;
 	loader.LoadFile(objectfilepath);
 	std::cout << loader.LoadedMeshes[0].MeshName << std::endl;
@@ -40,7 +37,33 @@ void PainterlyParticleSystem::initializeArray(std::string objectfilepath) {
 	std::vector<unsigned int> indices = loader.LoadedMeshes[0].Indices;
 	std::cout << indices.size() << std::endl;
 	std::cout << vertices.size() << std::endl;
-	//loop through indices
+
+	float minArea;
+	//loop through mesh triangles to get area data
+	for (int i = 0; i < indices.size(); i += 3) {
+		if (i == 0) {
+			glm::vec3 ab = glm::vec3(vertices[i + 1].Position.X, vertices[i + 1].Position.Y, vertices[i + 1].Position.Z)
+				- glm::vec3(vertices[i].Position.X, vertices[i].Position.Y, vertices[i].Position.Z);
+			glm::vec3 ac = glm::vec3(vertices[i + 2].Position.X, vertices[i + 2].Position.Y, vertices[i + 2].Position.Z)
+				- glm::vec3(vertices[i].Position.X, vertices[i].Position.Y, vertices[i].Position.Z);
+			float area = glm::length(glm::cross(ab, ac)) / 2;
+			minArea = area;
+		}
+		else {
+			glm::vec3 ab = glm::vec3(vertices[i + 1].Position.X, vertices[i + 1].Position.Y, vertices[i + 1].Position.Z)
+				- glm::vec3(vertices[i].Position.X, vertices[i].Position.Y, vertices[i].Position.Z);
+			glm::vec3 ac = glm::vec3(vertices[i + 2].Position.X, vertices[i + 2].Position.Y, vertices[i + 2].Position.Z)
+				- glm::vec3(vertices[i].Position.X, vertices[i].Position.Y, vertices[i].Position.Z);
+			float area = glm::length(glm::cross(ab, ac)) / 2;
+			if (area < minArea) {
+				minArea = area;
+			}
+		}
+	}
+	std::cout << "Min area calculated: " << std::endl;
+	std::cout << minArea << std::endl;
+
+	//loop through indices again and place particles
 	for (int i = 0; i < indices.size(); i += 3) {
 		PaintParticle center;
 		center.position.w = 1.0f;
@@ -62,12 +85,11 @@ returns the program ID of the vertex/fragment shader program associated with thi
 }
 
 /*
-sets vf shader uniforms and makes draw call
+sets model related shader uniforms and makes draw call
 */
 void PainterlyParticleSystem::batchRenderSystem()
 {
 	shader.bind();
-	//vb.updateBufferData(m_particles.data(), m_particles.size() * sizeof(PaintParticle), 0, DYNAMIC_DRAW);
 	IndexBuffer ib(m_masterIndexBuffer.data(), m_masterIndexBuffer.size());
 	shader.setUniformMat4f("u_model", m_transformationMatrix);
 	renderer.draw(va, ib, shader);

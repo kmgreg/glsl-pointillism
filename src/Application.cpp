@@ -16,7 +16,7 @@
 #include "Random.h"
 
 /**
-get mouse position to update particle system origin
+get mouse position to update particle system origin. not used for Painterly particle system
 */
 glm::vec3 getMouseCoordinates(double x, double y, int windowx, int windowy, glm::mat4 proj, glm::mat4 view)
 {
@@ -30,10 +30,15 @@ glm::vec3 getMouseCoordinates(double x, double y, int windowx, int windowy, glm:
     return no;
 }
 
+/**
+polls WASDQE for camera movement. returns a movement vector in xyz directions. 
+values in vector are all 1, 0 or -1 to indicate direction of movement
+these values are modulated inside the camera class based on 
+the camera's speed member variable
+*/
 glm::vec3 pollKeysToMoveCamera(GLFWwindow* window) {
     glm::vec3 movement = glm::vec3(0.0f);
     int state;
-    //move cam into the screen
     state = glfwGetKey(window, GLFW_KEY_W);
     if (state == GLFW_PRESS) {
         movement.z = movement.z - 1.0f;
@@ -83,13 +88,23 @@ int main(void)
     if (glewInit() != GLEW_OK) std::cout << "glewInit() Error!" << std::endl;
 
     /*initilize render loop variables*/
-    PainterlyParticleSystem pps = PainterlyParticleSystem(100, "res/shaders/Blue.shader", "res/Shaders/Smoke.compute", "res/objects/bunny.obj", "res/shaders/shader.geom");
-    pps.setTransformationMatrix(
+    PainterlyParticleSystem pps = PainterlyParticleSystem(100, "res/shaders/Blue.shader", "res/objects/teapot.obj", "res/shaders/shader.geom");
+    
+    //good scaling for bunny
+    /*pps.setTransformationMatrix(
         glm::mat4(6.0f, 0.0f, 0.0f, 0.0f,
                   0.0f, 6.0f, 0.0f, 0.0f,
                   0.0f, 0.0f, 6.0f, 0.0f,
                   0.0f, 0.0f, 0.0f, 1.0f)
+    );*/
+    //good scaling for teapot
+    pps.setTransformationMatrix(
+        glm::mat4(0.5f, 0.0f, 0.0f, 0.0f,
+            0.0f, 0.5f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.5f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f)
     );
+    //pps.setTransformationMatrix(glm::mat4(1.0f));
     pps.getShader().bind();
     Renderer renderer;
     Camera camera;
@@ -109,8 +124,8 @@ int main(void)
         /*RENDERING CODE */
         renderer.clear();
         camera.moveCamera(pollKeysToMoveCamera(window));
-        camera.onUpdate(pps.getShader()); //call the camera first because it needs to set view and projection matrices before the render
-        pps.onUpdate();
+        camera.onUpdate(pps.getShader()); //call the camera update first because it needs to set view and projection matrices before the render
+        pps.onUpdate(); //makes the draw call
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);

@@ -36,7 +36,6 @@ private:
 	IndexBuffer ib;
 	VertexBufferLayout layout;
 	Shader shader;
-	ComputeShader cShader;
 	Renderer renderer;
 	glm::mat4 m_transformationMatrix;
 
@@ -49,7 +48,7 @@ private:
 	unsigned int shaderId;
 
 public:
-	PainterlyParticleSystem(int size, std::string vfshaderfilepath, std::string computefilepath, std::string objectfilepath, std::string geoshaderfilepath);
+	PainterlyParticleSystem(int size, std::string vfshaderfilepath, std::string objectfilepath, std::string geoshaderfilepath);
 	void initializeArray(std::string objectfilepath); //called in constructor will initialize particle data
 	void generateMasterIndexArray(); //called in constructor, will initialize index buffer 
 	unsigned int getShaderID(); //return shader program
