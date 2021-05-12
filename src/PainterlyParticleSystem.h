@@ -51,6 +51,7 @@ private:
 	unsigned int shaderId;
 	glm::vec4 m_objColor;
 	float minAreaLeeway;
+	float pointDistance; //sent to geom shader as a uniform variable, distance the surrounding points are away from the center
 
 	float getTriangleArea(glm::vec3 a, glm::vec3 b, glm::vec3 c);
 
@@ -68,5 +69,6 @@ public:
 	PaintParticle getTriangleCenterAsPaintParticle(glm::vec3 a, glm::vec3 b, glm::vec3 c);
 	void setObjColor(glm::vec4 color);
 	glm::vec4 getObjColor();
+	void setPointDistance(float pd);
 };
 

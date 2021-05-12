@@ -8,7 +8,7 @@ Class to represent a particle system for the static painterly shader particles
 #include "PainterlyParticleSystem.h"
 #include "OBJ_Loader.h"
 PainterlyParticleSystem::PainterlyParticleSystem(std::string vfshaderfilepath, std::string objectfilepath, std::string geoshaderfilepath, float leeway) :
-	vb(), shader(vfshaderfilepath, geoshaderfilepath), m_size(0), m_transformationMatrix(1.0f), minAreaLeeway(leeway)
+	vb(), shader(vfshaderfilepath, geoshaderfilepath), m_size(0), m_transformationMatrix(1.0f), minAreaLeeway(leeway), pointDistance(0.01f)
 {
 	//first we are going to make the vertex object array
 	layout.push<float>(4); //push position
@@ -20,7 +20,7 @@ PainterlyParticleSystem::PainterlyParticleSystem(std::string vfshaderfilepath, s
 }
 
 PainterlyParticleSystem::PainterlyParticleSystem(std::string objectfilepath, Shader& precompiledshader, float leeway) : 
-	m_transformationMatrix(1.0f), m_size(0), minAreaLeeway(leeway)
+	m_transformationMatrix(1.0f), m_size(0), minAreaLeeway(leeway), pointDistance(0.01f)
 {
 	layout.push<float>(4); //push position
 	initializeArray(objectfilepath);
@@ -148,6 +148,7 @@ void PainterlyParticleSystem::batchRenderSystem()
 	IndexBuffer ib(m_masterIndexBuffer.data(), m_masterIndexBuffer.size());
 	shader.setUniformMat4f("u_model", m_transformationMatrix);
 	shader.setUniform4fv("objColor", m_objColor);
+	shader.setUniform1f("u_pointDistance", pointDistance);
 	renderer.draw(va, ib, shader);
 }
 
@@ -190,4 +191,9 @@ void PainterlyParticleSystem::setObjColor(glm::vec4 color)
 glm::vec4 PainterlyParticleSystem::getObjColor()
 {
 	return m_objColor;
+}
+
+void PainterlyParticleSystem::setPointDistance(float pd)
+{
+	pointDistance = pd;
 }

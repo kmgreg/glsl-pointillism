@@ -5,6 +5,8 @@ in vec4 _color[];
 out vec4 fColor;
 out vec4 posit;
 
+uniform float u_pointDistance;
+
 // From https://thebookofshaders.com/11/
 vec2 skew (vec2 st) {
     vec2 r = vec2(0.0);
@@ -33,22 +35,22 @@ void main() {
     
     gl_Position = gl_in[0].gl_Position; 
     EmitVertex();
-	gl_Position = gl_in[0].gl_Position + vec4(0.01, 0.01, 0.01, 0.01); 
+	gl_Position = gl_in[0].gl_Position + vec4(u_pointDistance, u_pointDistance, u_pointDistance, u_pointDistance); 
     EmitVertex();
-	gl_Position = gl_in[0].gl_Position + vec4(-0.01, 0.01, 0.01, 0.01);
+	gl_Position = gl_in[0].gl_Position + vec4(-u_pointDistance, u_pointDistance, u_pointDistance, u_pointDistance);
 	posit = gl_Position;
     EmitVertex();
-	gl_Position = gl_in[0].gl_Position + vec4(0.01, -0.01, 0.01, 0.01); 
+	gl_Position = gl_in[0].gl_Position + vec4(u_pointDistance, -u_pointDistance, u_pointDistance, u_pointDistance); 
     EmitVertex();
-	gl_Position = gl_in[0].gl_Position + vec4(0.01, 0.01, -0.01, 0.01); 
+	gl_Position = gl_in[0].gl_Position + vec4(u_pointDistance, u_pointDistance, -u_pointDistance, u_pointDistance); 
     EmitVertex();
-	gl_Position = gl_in[0].gl_Position + vec4(0.01, -0.01, -0.01, 0.01); 
+	gl_Position = gl_in[0].gl_Position + vec4(u_pointDistance, -u_pointDistance, -u_pointDistance, u_pointDistance); 
     EmitVertex();
-	gl_Position = gl_in[0].gl_Position + vec4(-0.01, -0.01, -0.01, 0.01); 
+	gl_Position = gl_in[0].gl_Position + vec4(-u_pointDistance, -u_pointDistance, -u_pointDistance, u_pointDistance); 
     EmitVertex();
-	gl_Position = gl_in[0].gl_Position + vec4(-0.01, -0.01, 0.01, 0.01); 
+	gl_Position = gl_in[0].gl_Position + vec4(-u_pointDistance, -u_pointDistance, u_pointDistance, u_pointDistance); 
     EmitVertex();
-	gl_Position = gl_in[0].gl_Position + vec4(-0.01, 0.01, -0.01, 0.01); 
+	gl_Position = gl_in[0].gl_Position + vec4(-u_pointDistance, u_pointDistance, -u_pointDistance, 0.01); 
     EmitVertex();
     EndPrimitive();
 }  
