@@ -48,7 +48,8 @@ void Camera::moveCamera(glm::vec3 translation)
 /// 
 void Camera::setFrustum(Shader shader)
 {
-	glm::mat4 pmat = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, 3.0f, -3.0f);
+	glm::mat4 pmat = glm::frustum(-2.0f, 2.0f, -1.5f, 1.5f, 1.0f, -10.0f);
+	//pmat = glm::mat4(1.0f);
     shader.setUniformMat4f("u_proj", pmat);
 }
 
