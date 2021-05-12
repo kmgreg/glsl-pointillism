@@ -1,7 +1,9 @@
 #pragma once
 #include "Renderer.h"
 /*
-@contributor lauren cole = class to represent textures
+@author = Lauren Cole
+class to represent textures
+adapted from OpenGL series: https://www.youtube.com/playlist?list=PLlrATfBNZ98foTJPJ_Ev03o2oq3-GGOS2
 */
 class Texture
 {

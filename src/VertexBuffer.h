@@ -2,8 +2,9 @@
 #define STATIC_DRAW 0
 #define DYNAMIC_DRAW 1
 /*
-@contirbutor Lauren Cole - class to represent vertex buffer obejcts
-
+@author =  Lauren Cole
+class to represent vertex buffer obejcts
+adapted from OpenGL series: https://www.youtube.com/playlist?list=PLlrATfBNZ98foTJPJ_Ev03o2oq3-GGOS2
 */
 class VertexBuffer
 {

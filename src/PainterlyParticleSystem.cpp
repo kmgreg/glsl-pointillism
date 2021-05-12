@@ -1,5 +1,5 @@
 /**
-@author = Lauren Cole
+@author = Lauren Cole, Kurt Gregorek
 Class to represent a particle system for the static painterly shader particles
 
 **/
@@ -42,34 +42,28 @@ void PainterlyParticleSystem::initializeArray(std::string objectfilepath) {
 	//loop through mesh triangles to get area data
 	for (int i = 0; i < indices.size(); i += 3) {
 		if (i == 0) {
-			glm::vec3 ab = glm::vec3(vertices[i + 1].Position.X, vertices[i + 1].Position.Y, vertices[i + 1].Position.Z)
-				- glm::vec3(vertices[i].Position.X, vertices[i].Position.Y, vertices[i].Position.Z);
-			glm::vec3 ac = glm::vec3(vertices[i + 2].Position.X, vertices[i + 2].Position.Y, vertices[i + 2].Position.Z)
-				- glm::vec3(vertices[i].Position.X, vertices[i].Position.Y, vertices[i].Position.Z);
-			float area = glm::length(glm::cross(ab, ac)) / 2;
-			minArea = area;
+			minArea = getTriangleArea(glm::vec3(vertices[i].Position.X, vertices[i].Position.Y, vertices[i].Position.Z),
+									  glm::vec3(vertices[i+1].Position.X, vertices[i+1].Position.Y, vertices[i+1].Position.Z),
+									  glm::vec3(vertices[i+2].Position.X, vertices[i+2].Position.Y, vertices[i+2].Position.Z));
 		}
 		else {
-			glm::vec3 ab = glm::vec3(vertices[i + 1].Position.X, vertices[i + 1].Position.Y, vertices[i + 1].Position.Z)
-				- glm::vec3(vertices[i].Position.X, vertices[i].Position.Y, vertices[i].Position.Z);
-			glm::vec3 ac = glm::vec3(vertices[i + 2].Position.X, vertices[i + 2].Position.Y, vertices[i + 2].Position.Z)
-				- glm::vec3(vertices[i].Position.X, vertices[i].Position.Y, vertices[i].Position.Z);
-			float area = glm::length(glm::cross(ab, ac)) / 2;
+			float area = getTriangleArea(glm::vec3(vertices[i].Position.X, vertices[i].Position.Y, vertices[i].Position.Z),
+				glm::vec3(vertices[i + 1].Position.X, vertices[i + 1].Position.Y, vertices[i + 1].Position.Z),
+				glm::vec3(vertices[i + 2].Position.X, vertices[i + 2].Position.Y, vertices[i + 2].Position.Z));
 			if (area < minArea) {
 				minArea = area;
 			}
-		}
+		}	
 	}
 	std::cout << "Min area calculated: " << std::endl;
 	std::cout << minArea << std::endl;
-
 	//loop through indices again and place particles
 	for (int i = 0; i < indices.size(); i += 3) {
 		PaintParticle center;
 		center.position.w = 1.0f;
 		center.position.x = (vertices[i].Position.X + vertices[i+1].Position.X + vertices[i+2].Position.X) / 3.0f;
-		center.position.y = (vertices[i].Position.Y + vertices[i + 1].Position.Y + vertices[i + 2].Position.Y) / 3.0f;
-		center.position.z = (vertices[i].Position.Z + vertices[i + 1].Position.Z + vertices[i + 2].Position.Z) / 3.0f;
+		center.position.y = (vertices[i].Position.Y + vertices[i+1].Position.Y + vertices[i+2].Position.Y) / 3.0f;
+		center.position.z = (vertices[i].Position.Z + vertices[i+1].Position.Z + vertices[i+2].Position.Z) / 3.0f;
 		m_particles.push_back(center);
 	}
 	m_size = m_particles.size();
@@ -107,4 +101,11 @@ void PainterlyParticleSystem::setTransformationMatrix(glm::mat4 tMat)
 Shader& PainterlyParticleSystem::getShader()
 {
 	return shader;
+}
+
+float PainterlyParticleSystem::getTriangleArea(glm::vec3 a, glm::vec3 b, glm::vec3 c)
+{
+	glm::vec3 ab = b - a;
+	glm::vec3 ac = a - c;
+	return glm::length(glm::cross(ab, ac)) / 2;
 }

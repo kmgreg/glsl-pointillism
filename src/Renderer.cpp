@@ -2,7 +2,9 @@
 #include <iostream>
 
 /*
-@contributor Lauren Cole. class to absctract rendering objects. code looks cleaner this way. based off of tutorials (See shader class for specifics)
+@contributor Lauren Cole. class to absctract rendering objects
+adapted from OpenGL series: https://www.youtube.com/playlist?list=PLlrATfBNZ98foTJPJ_Ev03o2oq3-GGOS2
+only renders GL POINTs b/c it is inteded for use with particle systems
 */
 //TODO: set up Shader cache system in the renderer or compile all shaders during init
 void GLClearError()
@@ -25,7 +27,6 @@ void Renderer::draw(const VertexArray& va, const IndexBuffer& ib, const Shader& 
 	shader.bind();
 	va.bind();
 	ib.bind();
-	//glDrawElements(GL_TRIANGLES, ib.getCount(), GL_UNSIGNED_INT, nullptr);
 	glDrawElements(GL_POINTS, ib.getCount(), GL_UNSIGNED_INT, nullptr);
 }
 

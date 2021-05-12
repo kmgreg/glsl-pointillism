@@ -1,3 +1,9 @@
+/*
+@author = Lauren Cole, Kurt Gregorek
+class to represent a pointillism particle system
+it is of note the system is static because particles are papermached on to an object mesh to represent pointillism
+*/
+
 #include <glm/glm.hpp>
 #include "glm/gtc/matrix_transform.hpp"
 #include <glm/common.hpp>
@@ -12,7 +18,6 @@
 #include <vector>
 #include <algorithm>
 #include <array>
-//#include <vendor\glm\ext\quaternion_common.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 
@@ -38,14 +43,14 @@ private:
 	Shader shader;
 	Renderer renderer;
 	glm::mat4 m_transformationMatrix;
-
-
 	int m_size;
 	std::vector<PaintParticle> m_particles;
 	glm::vec3 particleScale = glm::vec3(0.01f, 0.01, 0.0f);
 	std::vector<unsigned int> m_masterIndexBuffer;
 	std::vector<PaintParticle> m_masterVBO;
 	unsigned int shaderId;
+
+	float getTriangleArea(glm::vec3 a, glm::vec3 b, glm::vec3 c);
 
 public:
 	PainterlyParticleSystem(int size, std::string vfshaderfilepath, std::string objectfilepath, std::string geoshaderfilepath);
@@ -56,6 +61,7 @@ public:
 	void onUpdate(); //we will update the particles to rotate towards the camera every frame
 	void setTransformationMatrix(glm::mat4 tMat);
 	Shader& getShader();
+	
 
 };
 

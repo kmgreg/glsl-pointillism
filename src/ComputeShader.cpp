@@ -5,7 +5,7 @@
 
 /*
 @author = Lauren Cole
-based on Shader class which is based on some tutorials found online, though its functionality has been extended
+class to represent/wrap OpenGL compute shaders
 */
 
 ComputeShader::ComputeShader(std::string& filepath) : m_filepath(filepath), m_rendererID(0)

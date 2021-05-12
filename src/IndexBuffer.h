@@ -1,6 +1,7 @@
 /**
+* @author = Lauren Cole
 class to represent an index buffer. makes the render loop much neater. adapted from youtube tutorials on openGL
-
+adapted from OpenGL series: https://www.youtube.com/playlist?list=PLlrATfBNZ98foTJPJ_Ev03o2oq3-GGOS2
 **/
 
 #pragma once

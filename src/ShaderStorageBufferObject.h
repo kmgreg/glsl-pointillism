@@ -5,7 +5,7 @@
 
 /*
 @author = Lauren Cole
-a class to represent shader storage buffer object
+a class to represent shader storage buffer object for use with compute shaders
 */
 
 #define VERTEX 0

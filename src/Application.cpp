@@ -1,3 +1,9 @@
+/*
+@authors = Lauren Cole, Kurt Gregorek
+entry point for painterly particle system assignment
+gets keyboard input and calls update functions for particle system and camera
+*/
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>

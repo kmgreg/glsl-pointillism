@@ -3,6 +3,7 @@
 #include "VertexBuffer.h"
 /*
 @ontirbutor Lauren Cole - class to represent vertex arrray obejcts
+adapted from OpenGL series: https://www.youtube.com/playlist?list=PLlrATfBNZ98foTJPJ_Ev03o2oq3-GGOS2
 
 */
 class VertexBufferLayout;

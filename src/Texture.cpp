@@ -2,7 +2,7 @@
 #include "stb_image.h"
 /*
 @contributor lauren cole = class to represent textures
-
+adapted from OpenGL series: https://www.youtube.com/playlist?list=PLlrATfBNZ98foTJPJ_Ev03o2oq3-GGOS2
 */
 Texture::Texture(const std::string& path) : 
 	m_rendererID(0), m_filepath(path), m_localBuffer(nullptr), m_width(0), m_height(0), m_bpp(0)

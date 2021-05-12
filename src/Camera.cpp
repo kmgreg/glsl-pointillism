@@ -1,3 +1,9 @@
+/**
+@author = Lauren Cole.
+Basic camera class that allows panning in 3d
+TODO: allow looking around (camera rotation)
+*/
+
 #include "Camera.h"
 
 

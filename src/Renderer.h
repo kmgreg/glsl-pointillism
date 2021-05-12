@@ -6,7 +6,10 @@
 #include "VertexArray.h"
 //TODO - rendering modes - triangles etc
 /*
-@contributor = Lauren Cole
+@author = Lauren Cole
+adapted from OpenGL series: https://www.youtube.com/playlist?list=PLlrATfBNZ98foTJPJ_Ev03o2oq3-GGOS2
+simple Renderer class to wrap open gl draw functions. intended for use with a particle system
+so can only render GL_POINTS
 */
 
 #define ASSERT(x) if (!(x)) __debugbreak();

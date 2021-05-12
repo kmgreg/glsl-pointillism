@@ -6,7 +6,9 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include <glm/gtc/type_ptr.hpp>
 /*
+* @author = Lauren Cole
 class to abstract vertex and fragment shaders, based off onlien tutorials but functionality has been extended
+adapted from OpenGL series: https://www.youtube.com/playlist?list=PLlrATfBNZ98foTJPJ_Ev03o2oq3-GGOS2
 */
 struct ShaderProgramSource
 {
