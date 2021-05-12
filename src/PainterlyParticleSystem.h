@@ -56,7 +56,7 @@ public:
 	void batchRenderSystem(); //make the draw call for all the particles
 	void onUpdate(); //we will update the particles to rotate towards the camera every frame
 	void setTransformationMatrix(glm::mat4 tMat);
-	
+	Shader& getShader();
 
 };
 

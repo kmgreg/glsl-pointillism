@@ -81,3 +81,8 @@ void PainterlyParticleSystem::setTransformationMatrix(glm::mat4 tMat)
 {
 	m_transformationMatrix = tMat;
 }
+
+Shader& PainterlyParticleSystem::getShader()
+{
+	return shader;
+}
