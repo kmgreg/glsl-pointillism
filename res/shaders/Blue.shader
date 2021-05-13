@@ -10,8 +10,8 @@ uniform mat4 u_proj;
 uniform mat4 u_model;
 void main()
 {
-    gl_PointSize = 1.0f;
 	_color = vec4(0.1, 0.7, 1.0, 1.0);
+	gl_PointSize = 2.0;
 	gl_Position = u_proj * u_view * u_model * position;
 };
 

@@ -20,6 +20,7 @@
 
 struct PaintParticle {
 	glm::vec4 position;
+	glm::vec3 normal;
 	//temp sorting, obviously will be sorting by distance from view position, but until we have a camera this is the equivalent of that
 	bool operator < (const PaintParticle& particle) const
 	{
@@ -48,6 +49,12 @@ private:
 	std::vector<PaintParticle> m_masterVBO;
 	unsigned int shaderId;
 
+	glm::vec4 diff = {1,1,1,1};
+	glm::vec4 ambi = {1,1,1,1};
+	glm::vec4 spec = {1,1,1,1};
+	GLfloat specExp;
+	glm::vec3 kCoeff = {1,1,1};
+
 public:
 	PainterlyParticleSystem(int size, std::string vfshaderfilepath, std::string computefilepath, std::string objectfilepath, std::string geoshaderfilepath);
 	void initializeArray(std::string objectfilepath); //called in constructor will initialize particle data
@@ -56,6 +63,7 @@ public:
 	void batchRenderSystem(); //make the draw call for all the particles
 	void onUpdate(); //we will update the particles to rotate towards the camera every frame
 	void setTransformationMatrix(glm::mat4 tMat);
+	void setPhongVariables(glm::vec4 diffuse, glm::vec4 ambient, glm::vec4 specular, GLfloat specExp, glm::vec3 kCoeff);
 	Shader& getShader();
 
 };

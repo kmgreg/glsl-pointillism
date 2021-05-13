@@ -9,6 +9,7 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "Shader.h"
+#include "Light.h"
 #include "VertexBufferLayout.h"
 #include "VertexArray.h"
 #include "Camera.h"
@@ -83,7 +84,7 @@ int main(void)
     if (glewInit() != GLEW_OK) std::cout << "glewInit() Error!" << std::endl;
 
     /*initilize render loop variables*/
-    PainterlyParticleSystem pps = PainterlyParticleSystem(100, "res/shaders/Blue.shader", "res/Shaders/Smoke.compute", "res/objects/bunny.obj", "res/shaders/shader.geom");
+    PainterlyParticleSystem pps = PainterlyParticleSystem(100, "res/shaders/BlueWithPhong.shader", "res/Shaders/Smoke.compute", "res/objects/bunny.obj", "res/shaders/shaderWithPhong.geom");
     pps.setTransformationMatrix(
         glm::mat4(6.0f, 0.0f, 0.0f, 0.0f,
                   0.0f, 6.0f, 0.0f, 0.0f,
@@ -91,13 +92,28 @@ int main(void)
                   0.0f, 0.0f, 0.0f, 1.0f)
     );
     pps.getShader().bind();
+
+    glm::vec4 vBlue = {0,0.1,1,1};
+    glm::vec4 vDBlue = { 0,0.1,1,1 };
+    glm::vec4 vWhite = {1,1,1,1};
+    glm::vec3 kCoeff = { 1,.1,1 };
+    pps.setPhongVariables(vBlue, vDBlue, vWhite, 20, kCoeff);
+
+    glm::vec4 vYellow = { 1,1,0,1 };
+    glm::vec4 vLYellow = { 0.7,0.7,0.5,1 };
+    glm::vec4 lightPos = {5,5,4,1};
+
+    Light ls = Light(pps.getShader(), lightPos, vYellow, vLYellow);
+
+
+
     Renderer renderer;
     Camera camera;
     
     /*any additional render settings here*/
     renderer.enableBlend();
     glEnable(GL_PROGRAM_POINT_SIZE);
-    glPointSize(1);
+    glPointSize(2);
     glEnable(GL_POINT_SMOOTH);
    
     /*settings for camera movement speed, TODO this should be handled in the camera class eventually*/
@@ -110,6 +126,7 @@ int main(void)
         renderer.clear();
         camera.moveCamera(pollKeysToMoveCamera(window));
         camera.onUpdate(pps.getShader()); //call the camera first because it needs to set view and projection matrices before the render
+        ls.setAndApplyToNewShader(pps.getShader());
         pps.onUpdate();
 
         /* Swap front and back buffers */
