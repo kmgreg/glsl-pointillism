@@ -1,0 +1,104 @@
+//@author Lauren Cole
+
+#version 430
+//declare unifroms here
+uniform vec3 u_lerpColors[6];
+
+//declare vertex structures
+struct attributeData
+{
+	vec4 position;
+	vec4 velocity;
+	vec4 age; //age and padding
+	vec4 color;
+};
+
+layout(std140, binding = 0) buffer vInfo
+{
+	attributeData data[];
+};
+
+layout(local_size_x = 128, local_size_y = 1, local_size_z = 1) in;
+//TODO: dampen velocity in older particles
+void main()
+{
+	//read in the current position in the thread
+	uint offset = gl_GlobalInvocationID.x;
+
+	//float lifeRemaining = outBuffer.data[offset].age;
+	float lifeRemaining = data[offset].age.x;
+
+	if (lifeRemaining > 0.0f)
+	{
+		//update positions
+		data[offset].position.x += data[offset].velocity.x;
+		data[offset].position.y += data[offset].velocity.y;
+		data[offset].position.z = 0.0f;
+		data[offset].position.w = 1.0f;
+
+		//update velocity
+		if (lifeRemaining < 0.15)
+		{
+			data[offset].velocity.x = data[offset].velocity.x * 0.5f;
+			data[offset].velocity.y = data[offset].velocity.y * 0.5f;
+			data[offset].velocity.z = 0.0f;
+			data[offset].velocity.w = 1.0f;
+		}
+		else
+		{
+			data[offset].velocity.x = data[offset].velocity.x;
+			data[offset].velocity.y = data[offset].velocity.y;
+			data[offset].velocity.z = 0.0f;
+			data[offset].velocity.w = 1.0f;
+
+		}
+
+		//update age
+		data[offset].age.x = data[offset].age.x - 0.01;
+		data[offset].age.y = 0.0f;
+		data[offset].age.z = 0.0f;
+		data[offset].age.w = 0.0f;
+
+		//update color
+		vec3 interp;
+		vec4 final;
+		float increment = 0.167f;
+		if (lifeRemaining > (1.0f - increment))
+		{
+			interp = mix(u_lerpColors[1], u_lerpColors[0], (lifeRemaining - (5.0 * increment)) / increment);
+			final = vec4(interp, 1.0f);
+		}
+		else if (lifeRemaining > (1.0f - (increment * 2.0f)))
+		{
+			interp = mix(u_lerpColors[2], u_lerpColors[1], (lifeRemaining - (4.0f * increment)) / increment);
+			final = vec4(interp, 1.0f);
+		}
+		else if (lifeRemaining > (1.0f - (increment * 3.0f)))
+		{
+			interp = mix(u_lerpColors[3], u_lerpColors[2], (lifeRemaining - (3.0f * increment)) / increment);
+			final = vec4(interp, 1.0f);
+		}
+		else if (lifeRemaining > 1.0f - (increment * 4.0f))
+		{
+			interp = mix(u_lerpColors[4], u_lerpColors[3], (lifeRemaining - (2.0f * increment)) / increment);
+			final = vec4(interp, 1.0f);
+		}
+		else if (lifeRemaining > 1.0f - (increment * 5.0f))
+		{
+			interp = mix(u_lerpColors[5], u_lerpColors[4], (lifeRemaining - (increment)) / increment);
+			final = vec4(interp, 1.0f);
+		}
+		else
+		{
+			interp = mix(vec3(0.0f, 0.0f, 0.0f), u_lerpColors[5], lifeRemaining / increment);
+			final = vec4(interp, 1.0f);
+		}
+		final[3] = mix(0.0, 1.0f, lifeRemaining);
+
+		data[offset].color.x = final.x;
+		data[offset].color.y = final.y;
+		data[offset].color.z = final.z;
+		data[offset].color.w = final.w;
+
+	}
+}
