@@ -2,7 +2,7 @@
 #include "Renderer.h"
 /*
 @contirbutor Lauren Cole - class to represent vertex buffer obejcts
-
+adapted from OpenGL series: https://www.youtube.com/playlist?list=PLlrATfBNZ98foTJPJ_Ev03o2oq3-GGOS2
 */
 VertexBuffer::VertexBuffer(const void* data, unsigned int size, int usage)
 {

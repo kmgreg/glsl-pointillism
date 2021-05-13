@@ -1,3 +1,9 @@
+/**
+@author = Lauren Cole. 
+Basic camera class that allows panning in 3d
+TODO: allow looking around (camera rotation)
+*/
+
 #include "glm/glm.hpp"
 #include "Shader.h"
 
@@ -26,4 +32,6 @@ public:
 	void onUpdate(Shader shader);
 	void setFrustum(Shader shader);
 	void setViewing(Shader shader);
+	float getMovementSpeed();
+	void setMovementSpeed(float movementspeed);
 };

@@ -1,3 +1,9 @@
+/*
+@author Lauren Cole
+class to wrap open gl compute shaders
+note for WRC - not used in the painterly particle system pipeline
+*/
+
 #pragma once
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>

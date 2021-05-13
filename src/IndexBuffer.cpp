@@ -2,7 +2,8 @@
 #include "Renderer.h"
 /*
 @contributor = Lauren Cole
-based heavily off of Cherno tutorials on https://www.youtube.com/channel/UCQ-W1KE9EYfdxhL6S4twUNw, functionality is extended by contributor
+based off of Cherno tutorials on https://www.youtube.com/channel/UCQ-W1KE9EYfdxhL6S4twUNw
+functionality is extended by contributor
 */
 
 IndexBuffer::IndexBuffer(const unsigned int* data, unsigned int count) : m_count(count)
@@ -22,7 +23,7 @@ IndexBuffer::IndexBuffer() : m_count(2)
         0, 1, 2,
         2, 3, 0
     };
-    unsigned int c= 6;
+    unsigned int c = 6;
 
     GLCall(glGenBuffers(1, &m_rendererID));
     GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_rendererID));

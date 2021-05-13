@@ -1,3 +1,9 @@
+/*
+@author = Lauren Cole
+class to represent a 3d animated particle system
+uses compute shaders to calculate animation
+*/
+
 #include <glm/glm.hpp>
 #include "glm/gtc/matrix_transform.hpp"
 #include <glm/common.hpp>
