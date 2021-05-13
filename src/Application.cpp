@@ -100,28 +100,17 @@ int main(void)
 
     /*initilize render loop variables*/
     
-    // pps.getShader().bind();
-
-   
-
-    
-
 
     /*initilize particle systems variables*/
-    PainterlyParticleSystem teapotPS = PainterlyParticleSystem("res/shaders/Pointillism.shader", 
-        "res/objects/teapot.obj", "res/shaders/Pointillism.geom", 50);
+    PainterlyParticleSystem teapotPS = PainterlyParticleSystem("res/shaders/BlueWithPhong.shader", 
+        "res/objects/teapot.obj", "res/shaders/shaderWithPhong.geom", 50);
     PainterlyParticleSystem bunnyPS = PainterlyParticleSystem("res/objects/bunny.obj", teapotPS.getShader(), 100);
+    bunnyPS.getShader().bind();
     //settings for bunny
     glm::mat4 bunnyModelMatrix = glm::mat4(1.0f);
     bunnyModelMatrix = glm::translate(bunnyModelMatrix, glm::vec3(1.0f, 0.0f, 0.0f));
     bunnyModelMatrix = glm::scale(bunnyModelMatrix, glm::vec3(6.0f, 6.0f, 6.0f));
     bunnyPS.setTransformationMatrix(bunnyModelMatrix);
-
-    glm::vec4 vBlue = { 0,0.1,1,1 };
-    glm::vec4 vDBlue = { 0,0.1,1,1 };
-    glm::vec4 vWhite = { 1,1,1,1 };
-    glm::vec3 kCoeff = { 1,.1,1 };
-    bunnyPS.setPhongVariables(vBlue, vDBlue, vWhite, 20, kCoeff);
 
     glm::vec4 vYellow = { 1,1,0,1 };
     glm::vec4 vLYellow = { 0.7,0.7,0.5,1 };
@@ -157,7 +146,18 @@ int main(void)
         camera.moveCamera(pollKeysToMoveCamera(window));
         ls.setAndApplyToNewShader(bunnyPS.getShader());
         camera.onUpdate(bunnyPS.getShader()); //call the camera update first because it needs to set view and projection matrices before the render
+        
+        glm::vec4 vRed = { 1,0,0,1 };
+        glm::vec4 vLRed = { 1,0.3,0.1,1 };
+        glm::vec4 vWhite = { 1,1,1,1 };
+        glm::vec3 kCoeffTea = { 1,.1,1 };
+        teapotPS.setPhongVariables(vRed, vLRed, vWhite, 20, kCoeffTea);
         teapotPS.onUpdate(); //makes the draw call
+        
+        glm::vec4 vBlue = { 0,0.1,1,1 };
+        glm::vec4 vDBlue = { 0,0.1,1,1 };
+        glm::vec3 kCoeffBun = { 1,.1,1 };
+        bunnyPS.setPhongVariables(vBlue, vDBlue, vWhite, 20, kCoeffBun);
         bunnyPS.onUpdate();
 
         /* Swap front and back buffers */
